@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AzisFood.CacheService.Interfaces;
+using AzisFood.CacheService.Redis.Interfaces;
 using AzisFood.DataEngine.Interfaces;
 using AzisFood.DataEngine.Mongo.Models;
 using AzisFood.MQ.Abstractions.Interfaces;

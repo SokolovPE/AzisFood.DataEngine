@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AzisFood.CacheService.Interfaces;
+using AzisFood.CacheService.Redis.Interfaces;
 using AzisFood.DataEngine.Interfaces;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
