@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>AzisFood.DataEngine.Abstractions</Title>
+        <Authors>AzisFood</Authors>
+        <PackageVersion>1.0.0.1</PackageVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MongoDB.Driver" Version="2.12.4" />
+    </ItemGroup>
+
+</Project>

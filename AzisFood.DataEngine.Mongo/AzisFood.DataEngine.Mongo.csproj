@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>AzisFood.DataEngine.Mongo</Title>
+        <PackageVersion>1.0.2.1</PackageVersion>
+        <Authors>AzisFood</Authors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AzisFood.CacheService" Version="1.0.0.1" />
+      <PackageReference Include="AzisFood.CacheService.Abstractions" Version="1.0.0" />
+      <PackageReference Include="AzisFood.MQ.Rabbit" Version="1.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+      <PackageReference Include="MongoDB.Bson" Version="2.12.4" />
+      <PackageReference Include="MongoDB.Driver" Version="2.12.4" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AzisFood.DataEngine.Abstractions\AzisFood.DataEngine.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>
