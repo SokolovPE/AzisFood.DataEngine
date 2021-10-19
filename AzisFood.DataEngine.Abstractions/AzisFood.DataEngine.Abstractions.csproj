@@ -5,7 +5,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Abstractions</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.0.0.2</PackageVersion>
+        <PackageVersion>1.0.2.4</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

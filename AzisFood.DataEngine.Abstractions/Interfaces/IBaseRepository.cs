@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AzisFood.DataEngine.Interfaces
@@ -9,39 +10,46 @@ namespace AzisFood.DataEngine.Interfaces
         /// Get items async
         /// </summary>
         /// <returns>Collection of item</returns>
-        public Task<IEnumerable<TEntity>> GetAsync();
+        public Task<IEnumerable<TEntity>> GetAsync(CancellationToken token = default);
+
         /// <summary>
         /// Get item by id
         /// </summary>
         /// <param name="id">Identifier of item</param>
+        /// <param name="token">Token for operation cancel</param>
         /// <returns>Item with supplied id</returns>
-        Task<TEntity> GetAsync(string id);
+        Task<TEntity> GetAsync(string id, CancellationToken token = default);
         /// <summary>
         /// Insert new item
         /// </summary>
         /// <param name="item">Item to insert</param>
+        /// <param name="token">Token for operation cancel</param>
         /// <returns>Inserted item</returns>
-        Task<TEntity> CreateAsync(TEntity item);
+        Task<TEntity> CreateAsync(TEntity item, CancellationToken token = default);
         /// <summary>
         /// Update item by id
         /// </summary>
         /// <param name="id">Id of item</param>
         /// <param name="itemIn">New value</param>
-        Task UpdateAsync(string id, TEntity itemIn);
+        /// <param name="token">Token for operation cancel</param>
+        Task UpdateAsync(string id, TEntity itemIn, CancellationToken token = default);
         /// <summary>
         /// Delete item
         /// </summary>
         /// <param name="itemIn">Value to delete</param>
-        Task RemoveAsync(TEntity itemIn);
+        /// <param name="token">Token for operation cancel</param>
+        Task RemoveAsync(TEntity itemIn, CancellationToken token = default);
         /// <summary>
         /// Delete item by id
         /// </summary>
         /// <param name="id">Id of item to delete</param>
-        Task RemoveAsync(string id);
+        /// <param name="token">Token for operation cancel</param>
+        Task RemoveAsync(string id, CancellationToken token = default);
         /// <summary>
         /// Delete items with id in list
         /// </summary>
         /// <param name="ids">Ids of items to delete</param>
-        Task RemoveManyAsync(string[] ids);
+        /// <param name="token">Token for operation cancel</param>
+        Task RemoveManyAsync(string[] ids, CancellationToken token = default);
     }
 }
