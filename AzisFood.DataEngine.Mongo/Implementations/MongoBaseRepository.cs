@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AzisFood.DataEngine.Interfaces;
@@ -66,6 +67,26 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             }
         }
 
+        public virtual async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
+            CancellationToken token = default)
+        {
+            try
+            {
+                return await (await Items.FindAsync(filter, cancellationToken: token)).ToListAsync(token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Throw cancelled operation, do not catch
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    $"There was an error during attempt to return {RepoEntityName} items with filter {filter}");
+                return default;
+            }
+        }
+
         public virtual async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
         {
             try
@@ -126,6 +147,23 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             try
             {
                 await Items.DeleteOneAsync(item => item.Id == id, token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Throw cancelled operation, do not catch
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"There was an error during attempt to delete {RepoEntityName}");
+            }
+        }
+        
+        public virtual async Task RemoveAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
+        {
+            try
+            {
+                await Items.DeleteManyAsync(filter, token);
             }
             catch (OperationCanceledException)
             {

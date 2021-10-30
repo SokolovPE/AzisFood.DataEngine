@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,5 +22,14 @@ namespace AzisFood.DataEngine.Interfaces
         /// <param name="token">Token for operation cancel</param>
         /// <returns>Item with supplied id</returns>
         public Task<TEntity> GetHashAsync(string id, CancellationToken token = default);
+
+        /// <summary>
+        /// Get item by id async from hashset by supplied filter
+        /// </summary>
+        /// <param name="filter">Condition for filter</param>
+        /// <param name="token">Token for operation cancel</param>
+        /// <returns>Items matching condition</returns>
+        Task<IEnumerable<TEntity>> GetHashAsync(Expression<Func<TEntity, bool>> filter,
+            CancellationToken token = default);
     }
 }
