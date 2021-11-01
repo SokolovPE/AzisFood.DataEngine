@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzisFood.DataEngine.Mongo",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzisFood.DataEngine.Abstractions", "AzisFood.DataEngine.Abstractions\AzisFood.DataEngine.Abstractions.csproj", "{5B646926-21B4-4CD3-9D46-34E1D92A0315}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzisFood.DataEngine.Mongo.Tests", "AzisFood.DataEngine.Mongo.Tests\AzisFood.DataEngine.Mongo.Tests.csproj", "{AFE5DA80-D5BA-480D-9013-5CD63C6AA34E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{5B646926-21B4-4CD3-9D46-34E1D92A0315}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B646926-21B4-4CD3-9D46-34E1D92A0315}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B646926-21B4-4CD3-9D46-34E1D92A0315}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFE5DA80-D5BA-480D-9013-5CD63C6AA34E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFE5DA80-D5BA-480D-9013-5CD63C6AA34E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFE5DA80-D5BA-480D-9013-5CD63C6AA34E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFE5DA80-D5BA-480D-9013-5CD63C6AA34E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

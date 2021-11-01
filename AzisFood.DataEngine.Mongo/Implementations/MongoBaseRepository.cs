@@ -30,11 +30,26 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             Items = database.GetCollection<TRepoEntity>(RepoEntityName);
         }
 
+        // constructor for tests
+        public MongoBaseRepository(ILogger<MongoBaseRepository<TRepoEntity>> logger, IMongoOptions mongoOptions,
+            IMongoClient mongoClient)
+        {
+            _logger = logger;
+            var client = mongoClient;
+            var database = client.GetDatabase(mongoOptions.DatabaseName);
+
+            // Fill constants
+            RepoEntityName = typeof(TRepoEntity).Name;
+
+            Items = database.GetCollection<TRepoEntity>(RepoEntityName);
+        }
+
         public virtual async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default)
         {
             try
             {
-                return (await Items.FindAsync(item => true, cancellationToken: token)).ToEnumerable(token);
+                token.ThrowIfCancellationRequested();
+                return (await Items.FindAsync(filter: FilterDefinition<TRepoEntity>.Empty, cancellationToken: token)).ToEnumerable(token);
             }
             catch (OperationCanceledException)
             {
@@ -52,7 +67,8 @@ namespace AzisFood.DataEngine.Mongo.Implementations
         {
             try
             {
-                return await (await Items.FindAsync(item => item.Id == id, cancellationToken: token))
+                token.ThrowIfCancellationRequested();
+                return await (await Items.FindAsync(item => item.Id == id, null, token))
                     .FirstOrDefaultAsync(token);
             }
             catch (OperationCanceledException)
@@ -72,6 +88,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 return await (await Items.FindAsync(filter, cancellationToken: token)).ToListAsync(token);
             }
             catch (OperationCanceledException)
@@ -91,6 +108,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
         {
             try
             {
+                token.ThrowIfCancellationRequested();
                 // Assign unique id
                 item.Id = ObjectId.GenerateNewId().ToString();
                 await Items.InsertOneAsync(item, cancellationToken: token);
