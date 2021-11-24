@@ -24,15 +24,16 @@ namespace AzisFood.DataEngine.Mongo.Implementations
         }
         public async Task FullRecache(TimeSpan expiry, bool asHash = true)
         {
-            await _cacheService.RemoveAsync(_repoEntityName);
             var items = (await _repository.GetAsync()).ToList();
             
             if (asHash)
             {
+                await _cacheService.HashDropAsync<T>();
                 await _cacheService.HashSetAsync(items, CommandFlags.None);
             }
             else
             {
+                await _cacheService.RemoveAsync(_repoEntityName);
                 var cacheSetResult = await _cacheService.SetAsync(_repoEntityName, items, expiry, CommandFlags.None);
                 if (!cacheSetResult)
                 {
