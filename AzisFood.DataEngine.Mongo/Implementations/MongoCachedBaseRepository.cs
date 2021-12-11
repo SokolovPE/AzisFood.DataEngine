@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,79 +10,64 @@ using AzisFood.DataEngine.Mongo.Models;
 using AzisFood.MQ.Abstractions.Interfaces;
 using AzisFood.MQ.Abstractions.Models;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using Newtonsoft.Json;
 using OpenTracing;
 using OpenTracing.Tag;
 using StackExchange.Redis;
 
 namespace AzisFood.DataEngine.Mongo.Implementations
 {
-    public class MongoCachedBaseRepository<TRepoEntity> : MongoBaseRepository<TRepoEntity>, ICachedBaseRepository<TRepoEntity>
-        where TRepoEntity : MongoRepoEntity
+    public class MongoCachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEntity> where TRepoEntity: MongoRepoEntity
     {
+        public string RepoEntityName { get; init; }
         private readonly ILogger<MongoCachedBaseRepository<TRepoEntity>> _logger;
         private readonly IRedisCacheService _cacheService;
         private readonly IProducerService<TRepoEntity> _producerService;
         private readonly ITracer _tracer;
+        
+        private readonly IBaseRepository<TRepoEntity> _base;
 
-        public MongoCachedBaseRepository(ILogger<MongoCachedBaseRepository<TRepoEntity>> logger,
-            IMongoOptions mongoOptions,
+        public MongoCachedBaseRepository(IBaseRepository<TRepoEntity> @base, ILogger<MongoCachedBaseRepository<TRepoEntity>> logger,
             IRedisCacheService cacheService,
-            ITracer tracer, IProducerService<TRepoEntity> producerService) : base(logger, mongoOptions)
+            ITracer tracer, IProducerService<TRepoEntity> producerService)
         {
             _logger = logger;
             _cacheService = cacheService;
             _tracer = tracer;
             _producerService = producerService;
+            _base = @base;
+            RepoEntityName = _base.RepoEntityName;
         }
 
-        public override async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default) =>
+        public async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default) =>
             await Get(false, token);
+
+        public async Task<TRepoEntity> GetAsync(string id, CancellationToken token = default) =>
+            await Get(id, false, token);
+
+        public async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
+            CancellationToken token = default) =>
+            await GetFiltered(filter, false, token);
 
         public async Task<IEnumerable<TRepoEntity>> GetHashAsync(CancellationToken token = default) =>
             await Get(token: token);
 
-        public override async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
-            CancellationToken token = default) =>
-            await GetFiltered(filter, false, token);
+        public async Task<TRepoEntity> GetHashAsync(string id, CancellationToken token = default) =>
+            await Get(id, token: token);
 
         public async Task<IEnumerable<TRepoEntity>> GetHashAsync(Expression<Func<TRepoEntity, bool>> filter,
             CancellationToken token = default) =>
             await GetFiltered(filter, token: token);
 
-        public override async Task<TRepoEntity> GetAsync(string id, CancellationToken token = default) =>
-            await Get(id, false, token);
-
-        public async Task<TRepoEntity> GetHashAsync(string id, CancellationToken token = default) =>
-            await Get(id, token: token);
-
-        public override async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
+        public async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
         {
-            _logger.LogInformation($"Requested creation of {RepoEntityName}: {JsonConvert.SerializeObject(item)}");
             var mainSpan = _tracer.BuildSpan("mongo-cached-repo.create").StartActive();
             try
             {
-                // Assign unique id
-                item.Id = ObjectId.GenerateNewId().ToString();
                 var insertSpan = _tracer.BuildSpan("insertion").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
                     .Start();
-                await Items.InsertOneAsync(item, cancellationToken: token);
+                await _base.CreateAsync(item, token);
                 insertSpan.Finish();
-                await _producerService.SendEvent(token: token);
-                _logger.LogInformation($"Requested creation of {RepoEntityName} succeeded");
                 return item;
-            }
-            catch (OperationCanceledException)
-            {
-                // Throw cancelled operation, do not catch
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"There was an error during attempt to create {RepoEntityName}");
-                return default;
             }
             finally
             {
@@ -90,28 +75,16 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             }
         }
 
-        public override async Task UpdateAsync(string id, TRepoEntity itemIn, CancellationToken token = default)
+        public async Task UpdateAsync(string id, TRepoEntity itemIn, CancellationToken token = default)
         {
-            _logger.LogInformation(
-                $"Requested update of {RepoEntityName} with id {id} with new value: {JsonConvert.SerializeObject(itemIn)}");
             var mainSpan = _tracer.BuildSpan("mongo-cached-repo.update").StartActive();
             try
             {
                 var replaceSpan = _tracer.BuildSpan("replace").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
                     .Start();
-                await Items.ReplaceOneAsync(item => item.Id == id, itemIn, cancellationToken: token);
+                await _base.UpdateAsync(id, itemIn, token);
                 replaceSpan.Finish();
                 await _producerService.SendEvent(token: token);
-                _logger.LogInformation($"Requested update of {RepoEntityName} succeeded");
-            }
-            catch (OperationCanceledException)
-            {
-                // Throw cancelled operation, do not catch
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"There was an error during attempt to update {RepoEntityName}");
             }
             finally
             {
@@ -119,27 +92,16 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             }
         }
 
-        public override async Task RemoveAsync(TRepoEntity itemIn, CancellationToken token = default)
+        public async Task RemoveAsync(TRepoEntity itemIn, CancellationToken token = default)
         {
-            _logger.LogInformation($"Requested delete of {RepoEntityName}: {JsonConvert.SerializeObject(itemIn)}");
             var mainSpan = _tracer.BuildSpan("mongo-cached-repo.delete").StartActive();
             try
             {
                 var deleteSpan = _tracer.BuildSpan("deletion").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
                     .Start();
-                await Items.DeleteOneAsync(item => item.Id == itemIn.Id, token);
+                await _base.RemoveAsync(itemIn, token);
                 deleteSpan.Finish();
                 await _producerService.SendEvent(token: token);
-                _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
-            }
-            catch (OperationCanceledException)
-            {
-                // Throw cancelled operation, do not catch
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"There was an error during attempt to delete {RepoEntityName}");
             }
             finally
             {
@@ -147,27 +109,16 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             }
         }
 
-        public override async Task RemoveAsync(string id, CancellationToken token = default)
+        public async Task RemoveAsync(string id, CancellationToken token = default)
         {
-            _logger.LogInformation($"Requested delete of {RepoEntityName} with id {id}");
             var mainSpan = _tracer.BuildSpan("mongo-cached-repo.delete").StartActive();
             try
             {
                 var deleteSpan = _tracer.BuildSpan("deletion").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
                     .Start();
-                await Items.DeleteOneAsync(item => item.Id == id, token);
+                await _base.RemoveAsync(id, token);
                 deleteSpan.Finish();
                 await _producerService.SendEvent(eventType: EventType.Deleted, payload: id, token: token);
-                _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
-            }
-            catch (OperationCanceledException)
-            {
-                // Throw cancelled operation, do not catch
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"There was an error during attempt to delete {RepoEntityName}");
             }
             finally
             {
@@ -175,37 +126,43 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             }
         }
 
-        public override async Task RemoveManyAsync(string[] ids, CancellationToken token = default)
+        public async Task RemoveAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
         {
-            _logger.LogInformation(
-                $"Requested delete of multiple {RepoEntityName} with ids {JsonConvert.SerializeObject(ids)}");
+            var mainSpan = _tracer.BuildSpan("mongo-cached-repo.delete-filtered").StartActive();
+            try
+            {
+                var deleteSpan = _tracer.BuildSpan("deletion-filtered").WithTag(Tags.DbType, "Mongo")
+                    .AsChildOf(mainSpan.Span)
+                    .Start();
+                await _base.RemoveAsync(filter, token);
+                deleteSpan.Finish();
+                await _producerService.SendEvent(eventType: EventType.Deleted, token: token);
+            }
+            finally
+            {
+                mainSpan.Span.Finish();
+            }
+        }
+
+        public async Task RemoveManyAsync(string[] ids, CancellationToken token = default)
+        {
             var mainSpan = _tracer.BuildSpan("mongo-cached-repo.delete").StartActive();
             try
             {
                 var deleteSpan = _tracer.BuildSpan("deletion").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
                     .Start();
-                await Items.DeleteManyAsync(item => ids.Contains(item.Id), token);
+                await _base.RemoveManyAsync(ids, token);
                 deleteSpan.Finish();
                 await _producerService.SendEvent(token: token);
                 // TODO: On deletion no need fully recache - just remove hash entry!
                 await _producerService.SendEvent(eventType: EventType.Deleted, payload: ids, token: token);
-                _logger.LogInformation($"Requested delete of multiple {RepoEntityName} succeeded");
-            }
-            catch (OperationCanceledException)
-            {
-                // Throw cancelled operation, do not catch
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"There was an error during attempt to delete multiple {RepoEntityName}");
             }
             finally
             {
                 mainSpan.Span.Finish();
             }
         }
-
+        
         /// <summary>
         /// Get items from cache
         /// </summary>
@@ -237,7 +194,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
                 _logger.LogWarning($"Items of type {RepoEntityName} are not presented in cache");
                 var dbSpan = _tracer.BuildSpan("mongo-cached-repo.get.db").WithTag(Tags.DbType, "Mongo")
                     .AsChildOf(mainSpan.Span).Start();
-                var dbResult = (await Items.FindAsync(item => true, cancellationToken: token)).ToEnumerable(token);
+                var dbResult = await _base.GetAsync(token);
                 dbSpan.Finish();
                 await _producerService.SendEvent(token: token);
 
@@ -294,7 +251,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
                 _logger.LogWarning($"Items of type {RepoEntityName} are not presented in cache");
                 var dbSpan = _tracer.BuildSpan("mongo-cached-repo.get-filtered.db").WithTag(Tags.DbType, "Mongo")
                     .AsChildOf(mainSpan.Span).Start();
-                var dbResult = (await Items.FindAsync(filter, cancellationToken: token)).ToEnumerable(token);
+                var dbResult = await _base.GetAsync(filter, token);
                 dbSpan.Finish();
                 await _producerService.SendEvent(token: token);
 
@@ -330,7 +287,6 @@ namespace AzisFood.DataEngine.Mongo.Implementations
         private async Task<TRepoEntity> Get(string id, bool hashMode = true, CancellationToken token = default)
         {
             var mainSpan = _tracer.BuildSpan("mongo-cached-repo.get").StartActive();
-            _logger.LogInformation($"Requested {RepoEntityName} with id: {id}");
             try
             {
                 var redisResult = hashMode
@@ -347,8 +303,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
                 _logger.LogWarning($"Item of type {RepoEntityName}  with id: {id} is not presented in cache");
                 var dbSpan = _tracer.BuildSpan("mongo-cached-repo.get.db").WithTag(Tags.DbType, "Mongo")
                     .AsChildOf(mainSpan.Span).Start();
-                var dbResult = await (await Items.FindAsync(item => item.Id == id, cancellationToken: token))
-                    .FirstOrDefaultAsync(token);
+                var dbResult = await _base.GetAsync(id, token);
                 dbSpan.Finish();
                 await _producerService.SendEvent(token: token);
                 _logger.LogInformation($"Request of {RepoEntityName} with id: {id} succeeded");

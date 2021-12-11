@@ -9,13 +9,14 @@ using AzisFood.DataEngine.Mongo.Models;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 
 namespace AzisFood.DataEngine.Mongo.Implementations
 {
     public class MongoBaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TRepoEntity: MongoRepoEntity
     {
+        public string RepoEntityName { get; init; }
         private readonly ILogger<MongoBaseRepository<TRepoEntity>> _logger;
-        protected readonly string RepoEntityName;
         protected IMongoCollection<TRepoEntity> Items;
         
         public MongoBaseRepository(ILogger<MongoBaseRepository<TRepoEntity>> logger, IMongoOptions mongoOptions)
@@ -35,8 +36,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             IMongoClient mongoClient)
         {
             _logger = logger;
-            var client = mongoClient;
-            var database = client.GetDatabase(mongoOptions.DatabaseName);
+            var database = mongoClient.GetDatabase(mongoOptions.DatabaseName);
 
             // Fill constants
             RepoEntityName = typeof(TRepoEntity).Name;
@@ -46,10 +46,16 @@ namespace AzisFood.DataEngine.Mongo.Implementations
 
         public virtual async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default)
         {
+            _logger.LogInformation($"Requested all {RepoEntityName} items");
             try
             {
                 token.ThrowIfCancellationRequested();
-                return (await Items.FindAsync(filter: FilterDefinition<TRepoEntity>.Empty, cancellationToken: token)).ToEnumerable(token);
+                var repoEntities =
+                    (await Items.FindAsync(filter: FilterDefinition<TRepoEntity>.Empty, cancellationToken: token))
+                    .ToEnumerable(token);
+                _logger.LogInformation(
+                    $"Request of all {RepoEntityName} items succeeded");
+                return repoEntities;
             }
             catch (OperationCanceledException)
             {
@@ -65,11 +71,14 @@ namespace AzisFood.DataEngine.Mongo.Implementations
 
         public virtual async Task<TRepoEntity> GetAsync(string id, CancellationToken token = default)
         {
+            _logger.LogInformation($"Requested {RepoEntityName} with id: {id}");
             try
             {
                 token.ThrowIfCancellationRequested();
-                return await (await Items.FindAsync(item => item.Id == id, null, token))
+                var repoEntity = await (await Items.FindAsync(item => item.Id == id, null, token))
                     .FirstOrDefaultAsync(token);
+                _logger.LogInformation($"Request of {RepoEntityName} with id: {id} succeeded");
+                return repoEntity;
             }
             catch (OperationCanceledException)
             {
@@ -86,10 +95,14 @@ namespace AzisFood.DataEngine.Mongo.Implementations
         public virtual async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
             CancellationToken token = default)
         {
+            _logger.LogInformation($"Requested filtered {RepoEntityName} items, filter: {filter}");
             try
             {
                 token.ThrowIfCancellationRequested();
-                return await (await Items.FindAsync(filter, cancellationToken: token)).ToListAsync(token);
+                var repoEntities = await (await Items.FindAsync(filter, cancellationToken: token)).ToListAsync(token);
+                _logger.LogInformation(
+                    $"Request of filtered {RepoEntityName} items returned {repoEntities.Count} items, filter: {filter}");
+                return repoEntities;
             }
             catch (OperationCanceledException)
             {
@@ -106,12 +119,14 @@ namespace AzisFood.DataEngine.Mongo.Implementations
 
         public virtual async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
         {
+            _logger.LogInformation($"Requested creation of {RepoEntityName}: {JsonConvert.SerializeObject(item)}");
             try
             {
                 token.ThrowIfCancellationRequested();
                 // Assign unique id
                 item.Id = ObjectId.GenerateNewId().ToString();
                 await Items.InsertOneAsync(item, cancellationToken: token);
+                _logger.LogInformation($"Requested creation of {RepoEntityName} succeeded");
                 return item;
             }
             catch (OperationCanceledException)
@@ -128,9 +143,12 @@ namespace AzisFood.DataEngine.Mongo.Implementations
 
         public virtual async Task UpdateAsync(string id, TRepoEntity itemIn, CancellationToken token = default)
         {
+            _logger.LogInformation(
+                $"Requested update of {RepoEntityName} with id {id} with new value: {JsonConvert.SerializeObject(itemIn)}");
             try
             {
                 await Items.ReplaceOneAsync(item => item.Id == id, itemIn, cancellationToken: token);
+                _logger.LogInformation($"Requested update of {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
             {
@@ -145,9 +163,11 @@ namespace AzisFood.DataEngine.Mongo.Implementations
 
         public virtual async Task RemoveAsync(TRepoEntity itemIn, CancellationToken token = default)
         {
+            _logger.LogInformation($"Requested delete of {RepoEntityName}: {JsonConvert.SerializeObject(itemIn)}");
             try
             {
                 await Items.DeleteOneAsync(item => item.Id == itemIn.Id, token);
+                _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
             {
@@ -162,9 +182,11 @@ namespace AzisFood.DataEngine.Mongo.Implementations
 
         public virtual async Task RemoveAsync(string id, CancellationToken token = default)
         {
+            _logger.LogInformation($"Requested delete of {RepoEntityName} with id {id}");
             try
             {
                 await Items.DeleteOneAsync(item => item.Id == id, token);
+                _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
             {
@@ -179,9 +201,11 @@ namespace AzisFood.DataEngine.Mongo.Implementations
         
         public virtual async Task RemoveAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
         {
+            _logger.LogInformation($"Requested delete of {RepoEntityName} with filter {filter}");
             try
             {
                 await Items.DeleteManyAsync(filter, token);
+                _logger.LogInformation($"Requested delete of {RepoEntityName} with filter {filter} succeeded");
             }
             catch (OperationCanceledException)
             {
@@ -196,9 +220,12 @@ namespace AzisFood.DataEngine.Mongo.Implementations
 
         public virtual async Task RemoveManyAsync(string[] ids, CancellationToken token = default)
         {
+            _logger.LogInformation(
+                $"Requested delete of multiple {RepoEntityName} with ids {JsonConvert.SerializeObject(ids)}");
             try
             {
                 await Items.DeleteManyAsync(item => ids.Contains(item.Id), token);
+                _logger.LogInformation($"Requested delete of multiple {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
             {

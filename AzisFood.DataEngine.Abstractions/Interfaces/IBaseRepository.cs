@@ -9,6 +9,11 @@ namespace AzisFood.DataEngine.Interfaces
     public interface IBaseRepository<TEntity>
     {
         /// <summary>
+        /// Name of entity type
+        /// </summary>
+        public string RepoEntityName { get; init; }
+        
+        /// <summary>
         /// Get items async
         /// </summary>
         /// <returns>Collection of item</returns>
