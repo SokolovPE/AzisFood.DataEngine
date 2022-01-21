@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace AzisFood.DataEngine.ManualTest.Migrations
+namespace AzisFood.DataEngine.ManualTest.Migrations.CatalogMigrations
 {
-    public partial class AddCategoryToDb : Migration
+    public partial class InitializeCatalog : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

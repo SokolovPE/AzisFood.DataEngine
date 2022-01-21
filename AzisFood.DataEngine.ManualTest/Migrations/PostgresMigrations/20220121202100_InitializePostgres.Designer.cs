@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace AzisFood.DataEngine.ManualTest.Migrations
+namespace AzisFood.DataEngine.ManualTest.Migrations.PostgresMigrations
 {
-    [DbContext(typeof(PgDbContext))]
-    [Migration("20220120193258_AddCategoryToDb")]
-    partial class AddCategoryToDb
+    [DbContext(typeof(PostgresDbContext))]
+    [Migration("20220121202100_InitializePostgres")]
+    partial class InitializePostgres
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,22 +24,27 @@ namespace AzisFood.DataEngine.ManualTest.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AzisFood.DataEngine.ManualTest.Models.Category", b =>
+            modelBuilder.Entity("AzisFood.DataEngine.ManualTest.Models.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Order")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
+                    b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Qty")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Orders");
                 });
 #pragma warning restore 612, 618
         }

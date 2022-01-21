@@ -57,7 +57,7 @@ public static class InitExtensions
 
     public static void AddPostgresSupport(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddTransient<IDataAccess, PgDataAccess>()
+        serviceCollection.AddSingleton<IDataAccess, PgDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
             .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))
             .AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));

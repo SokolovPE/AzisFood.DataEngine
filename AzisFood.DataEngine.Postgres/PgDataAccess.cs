@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
+using AzisFood.DataEngine.Postgres.Attributes;
+using AzisFood.DataEngine.Postgres.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AzisFood.DataEngine.Postgres;
@@ -14,11 +16,13 @@ namespace AzisFood.DataEngine.Postgres;
 /// <inheritdoc />
 public class PgDataAccess : IDataAccess
 {
-    private readonly DbContext _context;
+    private readonly IEnumerable<DbContext> _contexts;
+    private readonly Dictionary<Type, DbContext> _entityContexts;
 
-    public PgDataAccess(DbContext context)
+    public PgDataAccess(IEnumerable<DbContext> contexts)
     {
-        _context = context;
+        _contexts = contexts;
+        _entityContexts = new Dictionary<Type, DbContext>();
     }
 
     /// <inheritdoc />
@@ -48,7 +52,7 @@ public class PgDataAccess : IDataAccess
         where TRepoEntity : class, IRepoEntity
     {
         Collection<TRepoEntity>().Add(item);
-        await _context.SaveChangesAsync(token);
+        await Context<TRepoEntity>().SaveChangesAsync(token);
         return item;
     }
 
@@ -57,8 +61,8 @@ public class PgDataAccess : IDataAccess
         where TRepoEntity : class, IRepoEntity
     {
         itemIn.Id = id;
-        _context.Entry(itemIn).State = EntityState.Modified;
-        await _context.SaveChangesAsync(token);
+        Context<TRepoEntity>().Entry(itemIn).State = EntityState.Modified;
+        await Context<TRepoEntity>().SaveChangesAsync(token);
     }
 
     /// <inheritdoc />
@@ -66,7 +70,7 @@ public class PgDataAccess : IDataAccess
         where TRepoEntity : class, IRepoEntity
     {
         Collection<TRepoEntity>().Remove(itemIn);
-        await _context.SaveChangesAsync(token);
+        await Context<TRepoEntity>().SaveChangesAsync(token);
     }
 
     /// <inheritdoc />
@@ -83,7 +87,7 @@ public class PgDataAccess : IDataAccess
     {
         var entities = await GetAsync(filter, token);
         Collection<TRepoEntity>().RemoveRange(entities);
-        await _context.SaveChangesAsync(token);
+        await Context<TRepoEntity>().SaveChangesAsync(token);
     }
 
     /// <inheritdoc />
@@ -94,9 +98,49 @@ public class PgDataAccess : IDataAccess
         await ids.ChunkedProcessAsync(50,
             async guids => { await RemoveAsync<TRepoEntity>(entity => guids.Contains(entity.Id), token); });
     }
-
+    
     private DbSet<TRepoEntity> Collection<TRepoEntity>() where TRepoEntity : class, IRepoEntity
     {
-        return _context.Set<TRepoEntity>();
+        return Context<TRepoEntity>().Set<TRepoEntity>();
+    }
+    
+    /// <summary>
+    /// Get entity context for given type
+    /// </summary>
+    /// <typeparam name="TRepoEntity">Entity type</typeparam>
+    /// <exception cref="ArgumentException">If entity contains no required attribute exception will be thrown</exception>
+    private DbContext Context<TRepoEntity>() where TRepoEntity : class, IRepoEntity
+    {
+        var type = typeof(TRepoEntity);
+
+        // First - check dictionary to avoid reflection
+        if (_entityContexts.ContainsKey(type))
+        {
+            return _entityContexts[type];
+        }
+
+        // If info is not presented in dictionary scan type and attribute
+        var fullName = type.FullName;
+
+        var attribute = Attribute.GetCustomAttribute(type, typeof(UseContext)) as UseContext;
+        if (attribute == null)
+        {
+            throw new ArgumentException(
+                $"Entity {fullName} has no {nameof(UseContext)} attribute. Entity is not supported");
+        }
+        
+        // Now let's find out which context is suitable
+        try
+        {
+            var context = _contexts.First(ctx => ctx.GetType().Name == attribute.ContextName);
+            _entityContexts.Add(type, context);
+            return context;
+        }
+        catch (InvalidOperationException e)
+        {
+            throw new ArgumentException(
+                $"There's no context suitable for {fullName}. Verify that at least one registered context has a set for this entity",
+                e);
+        }
     }
 }
