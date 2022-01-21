@@ -14,26 +14,28 @@ namespace AzisFood.DataEngine.Postgres.Extensions;
 public static class InitExtensions
 {
     /// <summary>
-    /// Register postgres options
+    ///     Register postgres options
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
     /// <param name="configuration">Application configuration</param>
-    public static void AddPostgresOptions(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static IServiceCollection AddPostgresOptions(this IServiceCollection serviceCollection,
+        IConfiguration configuration)
     {
-        serviceCollection.Configure<PgOptions>(configuration.GetSection(nameof(PgOptions)));
-        serviceCollection.AddSingleton(sp =>
-            sp.GetRequiredService<IOptions<PgOptions>>().Value);
+        return serviceCollection
+            .Configure<PgOptions>(configuration.GetSection(nameof(PgOptions)))
+            .AddSingleton(sp => sp.GetRequiredService<IOptions<PgOptions>>().Value);
     }
 
     /// <summary>
-    /// Add postgres database context
+    ///     Add postgres database context
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
     /// <param name="contextName">Name of context from configuration</param>
-    public static void AddPostgresContext<TContext>(this IServiceCollection serviceCollection, string contextName)
+    public static IServiceCollection AddPostgresContext<TContext>(this IServiceCollection serviceCollection,
+        string contextName)
         where TContext : DbContext
     {
-        serviceCollection
+        return serviceCollection
             .AddPooledDbContextFactory<TContext>((serviceProvider, options) =>
             {
                 try
@@ -49,15 +51,15 @@ public static class InitExtensions
                         $"Unable to configure {contextName} make sure that context is configured in application settings",
                         e);
                 }
-            });
-        serviceCollection.AddTransient<DbContext, TContext>();
+            })
+            .AddTransient<DbContext, TContext>();
     }
 
     public static void AddPostgresSupport(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddTransient<IDataAccess, PgDataAccess>();
-        serviceCollection.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
-        serviceCollection.AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>));
-        serviceCollection.AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));
+        serviceCollection.AddTransient<IDataAccess, PgDataAccess>()
+            .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
+            .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))
+            .AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));
     }
 }
