@@ -24,11 +24,11 @@ app.MapGet("/", () =>
     // var dataAccess = app.Services.GetRequiredService<IDataAccess>();
     // var data = dataAccess.GetAllAsync<Category>().Result;
 
-    // var repo = app.Services.GetRequiredService<IBaseRepository<Category>>();
-    // var data = repo.GetAsync().Result;
-
-    var repo = app.Services.GetRequiredService<ICachedBaseRepository<Category>>();
+    var repo = app.Services.GetRequiredService<IBaseRepository<Category>>();
     var data = repo.GetAsync().Result;
+
+    // var repo = app.Services.GetRequiredService<ICachedBaseRepository<Category>>();
+    // var data = repo.GetAsync().Result;
     
     return "Hello World!";
 });

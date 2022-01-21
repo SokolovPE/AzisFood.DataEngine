@@ -6,8 +6,8 @@ namespace AzisFood.DataEngine.ManualTest.Models;
 public class Category : PgRepoEntity
 {
     [Required]
-    public string Title { get; set; }
-    
+    public string Title { get; set; } = null!;
+
     [Required]
     public int Order { get; set; }
 }

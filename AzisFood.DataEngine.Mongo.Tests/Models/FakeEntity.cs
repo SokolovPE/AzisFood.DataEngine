@@ -9,7 +9,7 @@ namespace AzisFood.DataEngine.Mongo.Tests.Models
     /// </summary>
     public class FakeEntity : MongoRepoEntity
     {
-        public string StringField { get; set; }
+        public string StringField { get; set; } = null!;
         public long LongField { get; set; }
         public override bool Equals(object? obj)
         {
