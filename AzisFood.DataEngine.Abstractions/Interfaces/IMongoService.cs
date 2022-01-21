@@ -1,6 +1,6 @@
 using MongoDB.Driver;
 
-namespace AzisFood.DataEngine.Interfaces
+namespace AzisFood.DataEngine.Abstractions.Interfaces
 {
     /// <summary>
     /// Service to operate mongo entities

@@ -1,4 +1,4 @@
-﻿namespace AzisFood.DataEngine.Interfaces
+﻿namespace AzisFood.DataEngine.Abstractions.Interfaces
 {
     //TODO: Singleton instead?
     public interface IMongoOptions

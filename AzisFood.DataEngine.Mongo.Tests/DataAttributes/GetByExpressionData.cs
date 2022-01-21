@@ -12,7 +12,7 @@ namespace AzisFood.DataEngine.Mongo.Tests.DataAttributes
         private readonly Expression<Func<FakeEntity, bool>> _longFieldGreaterThanZero = entity => entity.LongField > 0;
         private readonly Expression<Func<FakeEntity, bool>> _stringFieldContainsOne =
             entity => entity.StringField.Contains("1");
-        private readonly Expression<Func<FakeEntity, bool>> _idStartsWithSixtyOne = entity => entity.Id.StartsWith("61");
+        private readonly Expression<Func<FakeEntity, bool>> _idStartsWithSixtyOne = entity => entity.Id.ToString().StartsWith("61");
         public override IEnumerable<object[]> GetData(MethodInfo testMethod)
         {
             yield return new object[] {_longFieldGreaterThanZero, 5};

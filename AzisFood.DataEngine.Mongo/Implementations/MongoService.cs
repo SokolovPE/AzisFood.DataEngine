@@ -1,4 +1,4 @@
-using AzisFood.DataEngine.Interfaces;
+using AzisFood.DataEngine.Abstractions.Interfaces;
 using MongoDB.Driver;
 
 namespace AzisFood.DataEngine.Mongo.Implementations

@@ -2,11 +2,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AzisFood.CacheService.Redis.Interfaces;
-using AzisFood.DataEngine.Interfaces;
+using AzisFood.DataEngine.Abstractions.Interfaces;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
-namespace AzisFood.DataEngine.Mongo.Implementations
+namespace AzisFood.DataEngine.Core
 {
     public class CacheOperator<T> : ICacheOperator<T>
     {

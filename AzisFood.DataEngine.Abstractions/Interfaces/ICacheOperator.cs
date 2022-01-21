@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace AzisFood.DataEngine.Interfaces
+namespace AzisFood.DataEngine.Abstractions.Interfaces
 {
     public interface ICacheOperator<T>
     {

@@ -3,7 +3,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using AzisFood.DataEngine.Interfaces;
+using AzisFood.DataEngine.Abstractions.Interfaces;
+using AzisFood.DataEngine.Core.Implementations;
 using AzisFood.DataEngine.Mongo.Implementations;
 using AzisFood.DataEngine.Mongo.Tests.DataAttributes;
 using AzisFood.DataEngine.Mongo.Tests.Models;
@@ -19,12 +20,13 @@ namespace AzisFood.DataEngine.Mongo.Tests.Helpers
     {
         private readonly ITestOutputHelper _testOutputHelper;
         private readonly FakeEntityFixture _fixture;
-        private readonly MongoBaseRepository<FakeEntity> _repository;
-        private readonly Mock<ILogger<MongoBaseRepository<FakeEntity>>> _logger;
+        private readonly BaseRepository<FakeEntity> _repository;
+        private readonly Mock<ILogger<BaseRepository<FakeEntity>>> _logger;
         private readonly Mock<IMongoDatabase> _mongoDatabase;
         private readonly Mock<IMongoClient> _mongoClient;
         private readonly Mock<IMongoCollection<FakeEntity>> _mongoCollection;
         private readonly Mock<IAsyncCursor<FakeEntity>> _asyncCursor;
+
         public MongoBaseRepositoryTests(FakeEntityFixture fixture, ITestOutputHelper testOutputHelper)
         {
             _fixture = fixture;
@@ -34,14 +36,16 @@ namespace AzisFood.DataEngine.Mongo.Tests.Helpers
             _testOutputHelper.WriteLine("Constructing...");
             var mongoOptions = Mock.Of<IMongoOptions>();
             mongoOptions.DatabaseName = "fake-database";
+            mongoOptions.ConnectionString = "fake-connection-string";
             
-            _logger = new Mock<ILogger<MongoBaseRepository<FakeEntity>>>();
+            _logger = new Mock<ILogger<BaseRepository<FakeEntity>>>();
             _mongoDatabase = new Mock<IMongoDatabase>();
             _mongoClient = new Mock<IMongoClient>();
             _asyncCursor = new Mock<IAsyncCursor<FakeEntity>>();
             _mongoCollection = new Mock<IMongoCollection<FakeEntity>>();
+            IDataAccess<FakeEntity> dataAccess = new MongoDataAccess<FakeEntity>(mongoOptions, _mongoCollection.Object);
             Setup();
-            _repository = new MongoBaseRepository<FakeEntity>(_logger.Object, mongoOptions, _mongoClient.Object);
+            _repository = new BaseRepository<FakeEntity>(_logger.Object, dataAccess);
         }
 
         private void Setup()
@@ -109,7 +113,7 @@ namespace AzisFood.DataEngine.Mongo.Tests.Helpers
 
         [Theory]
         [GetByIdData]
-        public async Task GetAsync_GivenId_ReturnsExistenceOfEntity(string id, bool expected)
+        public async Task GetAsync_GivenId_ReturnsExistenceOfEntity(Guid id, bool expected)
         {
             var result = await _repository.GetAsync(id);
             var resultExists = result != default;
@@ -123,7 +127,7 @@ namespace AzisFood.DataEngine.Mongo.Tests.Helpers
             var cts = new CancellationTokenSource(0);
             _testOutputHelper.WriteLine($"Got a cancellation: {cts.IsCancellationRequested}");
             var exceptionInfo = await Assert.ThrowsAsync<OperationCanceledException>(async () =>
-                await _repository.GetAsync("any", cts.Token));
+                await _repository.GetAsync(Guid.Empty, cts.Token));
             _testOutputHelper.WriteLine($"Exception message: {exceptionInfo.Message}");
         }
 
@@ -144,7 +148,7 @@ namespace AzisFood.DataEngine.Mongo.Tests.Helpers
             var cts = new CancellationTokenSource(0);
             _testOutputHelper.WriteLine($"Got a cancellation: {cts.IsCancellationRequested}");
             var exceptionInfo = await Assert.ThrowsAsync<OperationCanceledException>(async () =>
-                await _repository.GetAsync(x=>x.Id.StartsWith("61"), cts.Token));
+                await _repository.GetAsync(x=>x.Id.ToString().StartsWith("61"), cts.Token));
             _testOutputHelper.WriteLine($"Exception message: {exceptionInfo.Message}");
         }
 

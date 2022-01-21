@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AzisFood.DataEngine.Interfaces
+namespace AzisFood.DataEngine.Abstractions.Interfaces
 {
     public interface IBaseRepository<TEntity>
     {
@@ -25,7 +25,7 @@ namespace AzisFood.DataEngine.Interfaces
         /// <param name="id">Identifier of item</param>
         /// <param name="token">Token for operation cancel</param>
         /// <returns>Item with supplied id</returns>
-        Task<TEntity> GetAsync(string id, CancellationToken token = default);
+        Task<TEntity> GetAsync(Guid id, CancellationToken token = default);
 
         /// <summary>
         /// Get items by condition
@@ -49,7 +49,7 @@ namespace AzisFood.DataEngine.Interfaces
         /// <param name="id">Id of item</param>
         /// <param name="itemIn">New value</param>
         /// <param name="token">Token for operation cancel</param>
-        Task UpdateAsync(string id, TEntity itemIn, CancellationToken token = default);
+        Task UpdateAsync(Guid id, TEntity itemIn, CancellationToken token = default);
         
         /// <summary>
         /// Delete item
@@ -63,7 +63,7 @@ namespace AzisFood.DataEngine.Interfaces
         /// </summary>
         /// <param name="id">Id of item to delete</param>
         /// <param name="token">Token for operation cancel</param>
-        Task RemoveAsync(string id, CancellationToken token = default);
+        Task RemoveAsync(Guid id, CancellationToken token = default);
 
         /// <summary>
         /// Delete items by condition
@@ -77,6 +77,6 @@ namespace AzisFood.DataEngine.Interfaces
         /// </summary>
         /// <param name="ids">Ids of items to delete</param>
         /// <param name="token">Token for operation cancel</param>
-        Task RemoveManyAsync(string[] ids, CancellationToken token = default);
+        Task RemoveManyAsync(Guid[] ids, CancellationToken token = default);
     }
 }

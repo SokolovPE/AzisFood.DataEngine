@@ -1,8 +1,14 @@
-using AzisFood.DataEngine.Interfaces;
+using AzisFood.DataEngine.Abstractions.Interfaces;
+using AzisFood.DataEngine.Core;
+using AzisFood.DataEngine.Core.Implementations;
 using AzisFood.DataEngine.Mongo.Implementations;
+using AzisFood.DataEngine.Mongo.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace AzisFood.DataEngine.Mongo.Extensions
 {
@@ -13,9 +19,17 @@ namespace AzisFood.DataEngine.Mongo.Extensions
             serviceCollection.Configure<MongoOptions>(configuration.GetSection(nameof(MongoOptions)));
             serviceCollection.AddSingleton<IMongoOptions>(sp =>
                 sp.GetRequiredService<IOptions<MongoOptions>>().Value);
-            serviceCollection.AddTransient(typeof(IBaseRepository<>), typeof(MongoBaseRepository<>));
-            serviceCollection.AddTransient(typeof(ICachedBaseRepository<>), typeof(MongoCachedBaseRepository<>));
+            serviceCollection.AddTransient(typeof(IDataAccess<>), typeof(MongoDataAccess<>));
+            serviceCollection.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            serviceCollection.AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>));
             serviceCollection.AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));
+            
+            // Register mapping of Guid to string of MongoDb
+            BsonClassMap.RegisterClassMap<MongoRepoEntity>(map =>
+            {
+                map.AutoMap();
+                map.MapProperty(x => x.Id).SetSerializer(new GuidSerializer(BsonType.String));
+            });
         }
     }
 }

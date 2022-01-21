@@ -1,10 +1,12 @@
-﻿namespace AzisFood.DataEngine.Interfaces
+﻿using System;
+
+namespace AzisFood.DataEngine.Abstractions.Interfaces
 {
     /// <summary>
     /// Abstract repository entity
     /// </summary>
     public interface IRepoEntity
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
     }
 }

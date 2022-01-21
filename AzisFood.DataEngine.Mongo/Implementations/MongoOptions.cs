@@ -1,4 +1,4 @@
-﻿using AzisFood.DataEngine.Interfaces;
+﻿using AzisFood.DataEngine.Abstractions.Interfaces;
 
 namespace AzisFood.DataEngine.Mongo.Implementations
 {

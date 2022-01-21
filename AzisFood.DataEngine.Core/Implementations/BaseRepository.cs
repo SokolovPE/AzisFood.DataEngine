@@ -1,47 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using AzisFood.DataEngine.Interfaces;
-using AzisFood.DataEngine.Mongo.Models;
+using AzisFood.DataEngine.Abstractions.Interfaces;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using Newtonsoft.Json;
 
-namespace AzisFood.DataEngine.Mongo.Implementations
+namespace AzisFood.DataEngine.Core.Implementations
 {
-    public class MongoBaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TRepoEntity: MongoRepoEntity
+    public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TRepoEntity: IRepoEntity, new()
     {
         public string RepoEntityName { get; init; }
-        private readonly ILogger<MongoBaseRepository<TRepoEntity>> _logger;
-        protected IMongoCollection<TRepoEntity> Items;
-        
-        public MongoBaseRepository(ILogger<MongoBaseRepository<TRepoEntity>> logger, IMongoOptions mongoOptions)
+        private readonly ILogger<BaseRepository<TRepoEntity>> _logger;
+        protected readonly IDataAccess<TRepoEntity> DataAccess;
+
+        public BaseRepository(ILogger<BaseRepository<TRepoEntity>> logger, IDataAccess<TRepoEntity> dataAccess)
         {
             _logger = logger;
-            var client = new MongoClient(mongoOptions.ConnectionString);
-            var database = client.GetDatabase(mongoOptions.DatabaseName);
+            DataAccess = dataAccess;
 
             // Fill constants
             RepoEntityName = typeof(TRepoEntity).Name;
-
-            Items = database.GetCollection<TRepoEntity>(RepoEntityName);
-        }
-
-        // constructor for tests
-        public MongoBaseRepository(ILogger<MongoBaseRepository<TRepoEntity>> logger, IMongoOptions mongoOptions,
-            IMongoClient mongoClient)
-        {
-            _logger = logger;
-            var database = mongoClient.GetDatabase(mongoOptions.DatabaseName);
-
-            // Fill constants
-            RepoEntityName = typeof(TRepoEntity).Name;
-
-            Items = database.GetCollection<TRepoEntity>(RepoEntityName);
         }
 
         public virtual async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default)
@@ -50,9 +30,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             try
             {
                 token.ThrowIfCancellationRequested();
-                var repoEntities =
-                    (await Items.FindAsync(filter: FilterDefinition<TRepoEntity>.Empty, cancellationToken: token))
-                    .ToEnumerable(token);
+                var repoEntities = await DataAccess.GetAllAsync(token);
                 _logger.LogInformation(
                     $"Request of all {RepoEntityName} items succeeded");
                 return repoEntities;
@@ -69,14 +47,17 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             }
         }
 
-        public virtual async Task<TRepoEntity> GetAsync(string id, CancellationToken token = default)
+        public virtual async Task<TRepoEntity> GetAsync(Guid id, CancellationToken token = default)
         {
             _logger.LogInformation($"Requested {RepoEntityName} with id: {id}");
             try
             {
                 token.ThrowIfCancellationRequested();
-                var repoEntity = await (await Items.FindAsync(item => item.Id == id, null, token))
-                    .FirstOrDefaultAsync(token);
+                var repoEntity = await DataAccess.GetAsync(id, token);
+                if (repoEntity == null)
+                {
+                    throw new InvalidOperationException($"{RepoEntityName} with id {id} was not found");
+                }
                 _logger.LogInformation($"Request of {RepoEntityName} with id: {id} succeeded");
                 return repoEntity;
             }
@@ -99,9 +80,10 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             try
             {
                 token.ThrowIfCancellationRequested();
-                var repoEntities = await (await Items.FindAsync(filter, cancellationToken: token)).ToListAsync(token);
+                
+                var repoEntities = await DataAccess.GetAsync(filter, token);
                 _logger.LogInformation(
-                    $"Request of filtered {RepoEntityName} items returned {repoEntities.Count} items, filter: {filter}");
+                    $"Request of filtered {RepoEntityName} items succeeded, filter: {filter}");
                 return repoEntities;
             }
             catch (OperationCanceledException)
@@ -123,9 +105,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             try
             {
                 token.ThrowIfCancellationRequested();
-                // Assign unique id
-                item.Id = ObjectId.GenerateNewId().ToString();
-                await Items.InsertOneAsync(item, cancellationToken: token);
+                await DataAccess.CreateAsync(item, token);
                 _logger.LogInformation($"Requested creation of {RepoEntityName} succeeded");
                 return item;
             }
@@ -141,13 +121,13 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             }
         }
 
-        public virtual async Task UpdateAsync(string id, TRepoEntity itemIn, CancellationToken token = default)
+        public virtual async Task UpdateAsync(Guid id, TRepoEntity itemIn, CancellationToken token = default)
         {
             _logger.LogInformation(
                 $"Requested update of {RepoEntityName} with id {id} with new value: {JsonConvert.SerializeObject(itemIn)}");
             try
             {
-                await Items.ReplaceOneAsync(item => item.Id == id, itemIn, cancellationToken: token);
+                await DataAccess.UpdateAsync(id, itemIn, token);
                 _logger.LogInformation($"Requested update of {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
@@ -166,7 +146,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             _logger.LogInformation($"Requested delete of {RepoEntityName}: {JsonConvert.SerializeObject(itemIn)}");
             try
             {
-                await Items.DeleteOneAsync(item => item.Id == itemIn.Id, token);
+                await DataAccess.RemoveAsync(itemIn, token);
                 _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
@@ -180,12 +160,12 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             }
         }
 
-        public virtual async Task RemoveAsync(string id, CancellationToken token = default)
+        public virtual async Task RemoveAsync(Guid id, CancellationToken token = default)
         {
             _logger.LogInformation($"Requested delete of {RepoEntityName} with id {id}");
             try
             {
-                await Items.DeleteOneAsync(item => item.Id == id, token);
+                await DataAccess.RemoveAsync(id, token);
                 _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
@@ -204,7 +184,7 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             _logger.LogInformation($"Requested delete of {RepoEntityName} with filter {filter}");
             try
             {
-                await Items.DeleteManyAsync(filter, token);
+                await DataAccess.RemoveAsync(filter, token);
                 _logger.LogInformation($"Requested delete of {RepoEntityName} with filter {filter} succeeded");
             }
             catch (OperationCanceledException)
@@ -218,13 +198,13 @@ namespace AzisFood.DataEngine.Mongo.Implementations
             }
         }
 
-        public virtual async Task RemoveManyAsync(string[] ids, CancellationToken token = default)
+        public virtual async Task RemoveManyAsync(Guid[] ids, CancellationToken token = default)
         {
             _logger.LogInformation(
                 $"Requested delete of multiple {RepoEntityName} with ids {JsonConvert.SerializeObject(ids)}");
             try
             {
-                await Items.DeleteManyAsync(item => ids.Contains(item.Id), token);
+                await DataAccess.RemoveManyAsync(ids, token);
                 _logger.LogInformation($"Requested delete of multiple {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
