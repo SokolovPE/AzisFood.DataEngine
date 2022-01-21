@@ -1,4 +1,6 @@
 #nullable enable
+using AzisFood.DataEngine.Core;
+using AzisFood.DataEngine.Core.Attributes;
 using AzisFood.DataEngine.Mongo.Models;
 using AzisFood.DataEngine.Mongo.Tests.Helpers;
 
@@ -7,6 +9,8 @@ namespace AzisFood.DataEngine.Mongo.Tests.Models
     /// <summary>
     /// Fake entity for testing
     /// </summary>
+    [SupportedBy(DatabaseType.Mongo)]
+    [UseContext("fake-connection")]
     public class FakeEntity : MongoRepoEntity
     {
         public string StringField { get; set; } = null!;

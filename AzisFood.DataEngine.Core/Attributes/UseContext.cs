@@ -1,7 +1,6 @@
 using System;
-using Microsoft.EntityFrameworkCore;
 
-namespace AzisFood.DataEngine.Postgres.Attributes;
+namespace AzisFood.DataEngine.Core.Attributes;
 
 /// <summary>
 /// Which context should be used

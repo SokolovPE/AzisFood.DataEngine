@@ -34,18 +34,25 @@ namespace AzisFood.DataEngine.Mongo.Tests.Helpers
             
             
             _testOutputHelper.WriteLine("Constructing...");
-            var mongoOptions = Mock.Of<IMongoOptions>();
-            mongoOptions.DatabaseName = "fake-database";
-            mongoOptions.ConnectionString = "fake-connection-string";
+            var mongoOptions = Mock.Of<MongoOptions>();
+            mongoOptions.Connections = new[]
+            {
+                new MongoConnect
+                {
+                    Database = "fake-database",
+                    ConnectionString = "fake-connection-string",
+                    ConnectionName = "fake-connection"
+                }
+            };
             
             _logger = new Mock<ILogger<BaseRepository<FakeEntity>>>();
             _mongoDatabase = new Mock<IMongoDatabase>();
             _mongoClient = new Mock<IMongoClient>();
             _asyncCursor = new Mock<IAsyncCursor<FakeEntity>>();
             _mongoCollection = new Mock<IMongoCollection<FakeEntity>>();
-            IDataAccess dataAccess = new MongoDataAccess(_mongoDatabase.Object);
+            IDataAccess dataAccess = new MongoDataAccess(_mongoDatabase.Object, typeof(FakeEntity));
             Setup();
-            _repository = new BaseRepository<FakeEntity>(_logger.Object, dataAccess);
+            _repository = new BaseRepository<FakeEntity>(_logger.Object, new IDataAccess[1]{ dataAccess});
         }
 
         private void Setup()

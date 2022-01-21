@@ -13,6 +13,11 @@ namespace AzisFood.DataEngine.Abstractions.Interfaces;
 public interface IDataAccess
 {
     /// <summary>
+    ///     Type of database to work with
+    /// </summary>
+    public string DbType { get; set; }
+    
+    /// <summary>
     ///     Get all entities
     /// </summary>
     /// <param name="token">Cancellation token</param>

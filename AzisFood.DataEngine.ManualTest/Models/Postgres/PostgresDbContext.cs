@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace AzisFood.DataEngine.ManualTest.Models;
+namespace AzisFood.DataEngine.ManualTest.Models.Postgres;
 
 public class PostgresDbContext : DbContext
 {

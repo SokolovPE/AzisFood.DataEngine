@@ -2,10 +2,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
+using AzisFood.DataEngine.Core;
+using AzisFood.DataEngine.Core.Attributes;
+using AzisFood.DataEngine.Mongo.Implementations;
 using MongoDB.Driver;
 
 namespace AzisFood.DataEngine.Mongo;
@@ -13,20 +17,26 @@ namespace AzisFood.DataEngine.Mongo;
 /// <inheritdoc />
 public class MongoDataAccess : IDataAccess
 {
-    private readonly IMongoDatabase _database;
+    private readonly MongoOptions _options;
+    private readonly IEnumerable<IMongoDatabase> _databases;
+    private readonly Dictionary<Type, IMongoDatabase> _entityDatabases;
 
-    public MongoDataAccess(IMongoOptions mongoOptions)
+    public MongoDataAccess(IEnumerable<IMongoDatabase> databases, MongoOptions options)
     {
-        var client = new MongoClient(mongoOptions.ConnectionString);
-        _database = client.GetDatabase(mongoOptions.DatabaseName);
+        _databases = databases;
+        _options = options;
+        _entityDatabases = new Dictionary<Type, IMongoDatabase>();
     }
 
     // For tests
-    public MongoDataAccess(IMongoDatabase database)
+    public MongoDataAccess(IMongoDatabase database, Type type)
     {
-        _database = database;
-        // Mock GetCollection of this database!
+        _entityDatabases = new Dictionary<Type, IMongoDatabase>();
+        _entityDatabases.Add(type, database);
     }
+
+    /// <inheritdoc />
+    public string DbType { get; set; } = DatabaseType.Mongo.ToString();
 
     /// <inheritdoc />
     public async Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(CancellationToken token = default)
@@ -98,8 +108,49 @@ public class MongoDataAccess : IDataAccess
         await Collection<TRepoEntity>().DeleteManyAsync(item => ((IList) ids).Contains(item.Id), token);
     }
 
-    private IMongoCollection<TRepoEntity> Collection<TRepoEntity>()
+    private IMongoCollection<TRepoEntity> Collection<TRepoEntity>() where TRepoEntity : class, IRepoEntity
     {
-        return _database.GetCollection<TRepoEntity>(typeof(TRepoEntity).Name);
+        return Database<TRepoEntity>().GetCollection<TRepoEntity>(typeof(TRepoEntity).Name);
+    }
+
+    /// <summary>
+    /// Get entity client for given type
+    /// </summary>
+    /// <typeparam name="TRepoEntity">Entity type</typeparam>
+    /// <exception cref="ArgumentException">If entity contains no required attribute exception will be thrown</exception>
+    private IMongoDatabase Database<TRepoEntity>() where TRepoEntity : class, IRepoEntity
+    {
+        var type = typeof(TRepoEntity);
+
+        // First - check dictionary to avoid reflection
+        if (_entityDatabases.ContainsKey(type))
+        {
+            return _entityDatabases[type];
+        }
+
+        // If info is not presented in dictionary scan type and attribute
+        var fullName = type.FullName;
+
+        var attribute = Attribute.GetCustomAttribute(type, typeof(UseContext)) as UseContext;
+        if (attribute == null)
+        {
+            throw new ArgumentException(
+                $"Entity {fullName} has no {nameof(UseContext)} attribute. Entity is not supported");
+        }
+        
+        // Now let's find out which context is suitable
+        try
+        {
+            var connect = _options.Connections.First(con => con.ConnectionName == attribute.ContextName);
+            var database = _databases.First(db => db.DatabaseNamespace.DatabaseName == connect.Database);
+            _entityDatabases.Add(type, database);
+            return database;
+        }
+        catch (InvalidOperationException e)
+        {
+            throw new ArgumentException(
+                $"There's no connection suitable for {fullName}. Verify that at least one connect is registered for this entity",
+                e);
+        }
     }
 }

@@ -7,8 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
-using AzisFood.DataEngine.Postgres.Attributes;
-using AzisFood.DataEngine.Postgres.Models;
+using AzisFood.DataEngine.Core.Attributes;
 using Microsoft.EntityFrameworkCore;
 
 namespace AzisFood.DataEngine.Postgres;
@@ -24,6 +23,9 @@ public class PgDataAccess : IDataAccess
         _contexts = contexts;
         _entityContexts = new Dictionary<Type, DbContext>();
     }
+
+    /// <inheritdoc />
+    public string DbType { get; set; } = DatabaseType.Postgres.ToString();
 
     /// <inheritdoc />
     public async Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(CancellationToken token = default)

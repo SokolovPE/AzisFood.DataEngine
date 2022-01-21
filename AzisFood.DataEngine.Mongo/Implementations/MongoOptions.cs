@@ -1,10 +1,9 @@
-﻿using AzisFood.DataEngine.Abstractions.Interfaces;
+namespace AzisFood.DataEngine.Mongo.Implementations;
 
-namespace AzisFood.DataEngine.Mongo.Implementations
+/// <summary>
+/// MongoDB options
+/// </summary>
+public class MongoOptions
 {
-    public class MongoOptions : IMongoOptions
-    {
-        public string ConnectionString { get; set; }
-        public string DatabaseName { get; set; }
-    }
+    public MongoConnect[] Connections { get; set; }
 }

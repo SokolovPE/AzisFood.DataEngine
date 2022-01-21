@@ -1,7 +1,14 @@
+using System.Text.Json;
 using AzisFood.DataEngine.Abstractions.Interfaces;
-using AzisFood.DataEngine.ManualTest.Models;
+using AzisFood.DataEngine.ManualTest.Models.Postgres;
+using AzisFood.DataEngine.Mongo.Extensions;
 using AzisFood.DataEngine.Postgres.Extensions;
+using MongoCategory = AzisFood.DataEngine.ManualTest.Models.Mongo.Category;
+using MongoUnit = AzisFood.DataEngine.ManualTest.Models.Mongo.Unit;
 
+using PostgresCategory = AzisFood.DataEngine.ManualTest.Models.Postgres.Category;
+using PostgresOrder = AzisFood.DataEngine.ManualTest.Models.Postgres.Order;
+    
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
@@ -10,9 +17,29 @@ builder.Services
      .AddPostgresContext<PostgresDbContext>("postgres")
      .AddPostgresSupport();
 
+builder.Services
+    .AddMongoOptions(builder.Configuration)
+    .AddMongoConnect("catalog")
+    .AddMongoConnect("service")
+    .AddMongoSupport();
+
 var app = builder.Build();
 
-app.MapGet("/", () =>
+app.MapGet("/", () => "Hello World!");
+
+app.MapGet("/mongo", async () =>
+{
+    var unitRepo = app.Services.GetRequiredService<IBaseRepository<MongoUnit>>();
+    var units = await unitRepo.GetAsync();
+    
+    var categoryRepo = app.Services.GetRequiredService<IBaseRepository<MongoCategory>>();
+    var categories = await categoryRepo.GetAsync();
+
+    var result = new {Units = units, Categories = categories};
+    return JsonSerializer.Serialize(result);
+});
+
+app.MapGet("/pg", async () =>
 {
     // var context = app.Services.GetRequiredService<DbContext>();
     // var dbSet = context.Set<Category>();
@@ -21,15 +48,17 @@ app.MapGet("/", () =>
     // var dataAccess = app.Services.GetRequiredService<IDataAccess>();
     // var data = dataAccess.GetAllAsync<Category>().Result;
 
-    var repoOrder = app.Services.GetRequiredService<IBaseRepository<Order>>();
-    var zzz =repoOrder.CreateAsync(new Order {OrderDate = DateTime.Now.ToUniversalTime(), Price = 100.55m, Qty = 2}).Result;
-    var dataa = repoOrder.GetAsync().Result;
+    var repoOrder = app.Services.GetRequiredService<IBaseRepository<PostgresOrder>>();
+    await repoOrder.CreateAsync(new PostgresOrder
+        {OrderDate = DateTime.Now.ToUniversalTime(), Price = 100.55m, Qty = 2});
+    var orders = await repoOrder.GetAsync();
     
-    var repo = app.Services.GetRequiredService<IBaseRepository<Category>>();
-    var z = repo.CreateAsync(new Category() {Order = 1, Title = "awfawf"}).Result;
-    var data = repo.GetAsync().Result;
+    var repoCategory = app.Services.GetRequiredService<IBaseRepository<PostgresCategory>>();
+    await repoCategory.CreateAsync(new PostgresCategory {Order = 1, Title = "awfawf"});
+    var categories = await repoCategory.GetAsync();
     
-    return "Hello World!";
+    var result = new {Orders = orders, Categories = categories};
+    return JsonSerializer.Serialize(result);
 });
 
 app.Run();
