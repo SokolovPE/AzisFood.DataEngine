@@ -42,7 +42,6 @@ public static class InitExtensions
                     var config = configs.Connections.First(con =>
                         string.Equals(con.ConnectionName, contextName, StringComparison.InvariantCultureIgnoreCase));
                     options.UseNpgsql(config.ConnectionString);
-                    serviceCollection.AddTransient<DbContext, TContext>();
                 }
                 catch (InvalidOperationException e)
                 {
@@ -51,11 +50,12 @@ public static class InitExtensions
                         e);
                 }
             });
+        serviceCollection.AddTransient<DbContext, TContext>();
     }
 
     public static void AddPostgresSupport(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddTransient(typeof(IDataAccess<>), typeof(PgDataAccess<>));
+        serviceCollection.AddTransient<IDataAccess, PgDataAccess>();
         serviceCollection.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         serviceCollection.AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>));
         serviceCollection.AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));

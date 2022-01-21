@@ -19,17 +19,13 @@ namespace AzisFood.DataEngine.Mongo.Extensions
             serviceCollection.Configure<MongoOptions>(configuration.GetSection(nameof(MongoOptions)));
             serviceCollection.AddSingleton<IMongoOptions>(sp =>
                 sp.GetRequiredService<IOptions<MongoOptions>>().Value);
-            serviceCollection.AddTransient(typeof(IDataAccess<>), typeof(MongoDataAccess<>));
+            serviceCollection.AddTransient<IDataAccess,MongoDataAccess>();
             serviceCollection.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             serviceCollection.AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>));
             serviceCollection.AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));
             
             // Register mapping of Guid to string of MongoDb
-            BsonClassMap.RegisterClassMap<MongoRepoEntity>(map =>
-            {
-                map.AutoMap();
-                map.MapProperty(x => x.Id).SetSerializer(new GuidSerializer(BsonType.String));
-            });
+            BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
         }
     }
 }

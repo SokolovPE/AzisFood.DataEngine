@@ -43,7 +43,7 @@ namespace AzisFood.DataEngine.Mongo.Tests.Helpers
             _mongoClient = new Mock<IMongoClient>();
             _asyncCursor = new Mock<IAsyncCursor<FakeEntity>>();
             _mongoCollection = new Mock<IMongoCollection<FakeEntity>>();
-            IDataAccess<FakeEntity> dataAccess = new MongoDataAccess<FakeEntity>(mongoOptions, _mongoCollection.Object);
+            IDataAccess dataAccess = new MongoDataAccess(_mongoDatabase.Object);
             Setup();
             _repository = new BaseRepository<FakeEntity>(_logger.Object, dataAccess);
         }

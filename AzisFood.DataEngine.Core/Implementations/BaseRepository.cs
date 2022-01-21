@@ -9,13 +9,13 @@ using Newtonsoft.Json;
 
 namespace AzisFood.DataEngine.Core.Implementations
 {
-    public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TRepoEntity: IRepoEntity, new()
+    public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TRepoEntity: class, IRepoEntity, new()
     {
         public string RepoEntityName { get; init; }
         private readonly ILogger<BaseRepository<TRepoEntity>> _logger;
-        protected readonly IDataAccess<TRepoEntity> DataAccess;
+        protected readonly IDataAccess DataAccess;
 
-        public BaseRepository(ILogger<BaseRepository<TRepoEntity>> logger, IDataAccess<TRepoEntity> dataAccess)
+        public BaseRepository(ILogger<BaseRepository<TRepoEntity>> logger, IDataAccess dataAccess)
         {
             _logger = logger;
             DataAccess = dataAccess;
@@ -30,7 +30,7 @@ namespace AzisFood.DataEngine.Core.Implementations
             try
             {
                 token.ThrowIfCancellationRequested();
-                var repoEntities = await DataAccess.GetAllAsync(token);
+                var repoEntities = await DataAccess.GetAllAsync<TRepoEntity>(token);
                 _logger.LogInformation(
                     $"Request of all {RepoEntityName} items succeeded");
                 return repoEntities;
@@ -53,7 +53,7 @@ namespace AzisFood.DataEngine.Core.Implementations
             try
             {
                 token.ThrowIfCancellationRequested();
-                var repoEntity = await DataAccess.GetAsync(id, token);
+                var repoEntity = await DataAccess.GetAsync<TRepoEntity>(id, token);
                 if (repoEntity == null)
                 {
                     throw new InvalidOperationException($"{RepoEntityName} with id {id} was not found");
@@ -165,7 +165,7 @@ namespace AzisFood.DataEngine.Core.Implementations
             _logger.LogInformation($"Requested delete of {RepoEntityName} with id {id}");
             try
             {
-                await DataAccess.RemoveAsync(id, token);
+                await DataAccess.RemoveAsync<TRepoEntity>(id, token);
                 _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
@@ -204,7 +204,7 @@ namespace AzisFood.DataEngine.Core.Implementations
                 $"Requested delete of multiple {RepoEntityName} with ids {JsonConvert.SerializeObject(ids)}");
             try
             {
-                await DataAccess.RemoveManyAsync(ids, token);
+                await DataAccess.RemoveManyAsync<TRepoEntity>(ids, token);
                 _logger.LogInformation($"Requested delete of multiple {RepoEntityName} succeeded");
             }
             catch (OperationCanceledException)
