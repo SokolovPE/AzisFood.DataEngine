@@ -100,14 +100,14 @@ public class PgDataAccess : IDataAccess
         await ids.ChunkedProcessAsync(50,
             async guids => { await RemoveAsync<TRepoEntity>(entity => guids.Contains(entity.Id), token); });
     }
-    
+
     private DbSet<TRepoEntity> Collection<TRepoEntity>() where TRepoEntity : class, IRepoEntity
     {
         return Context<TRepoEntity>().Set<TRepoEntity>();
     }
-    
+
     /// <summary>
-    /// Get entity context for given type
+    ///     Get entity context for given type
     /// </summary>
     /// <typeparam name="TRepoEntity">Entity type</typeparam>
     /// <exception cref="ArgumentException">If entity contains no required attribute exception will be thrown</exception>
@@ -116,21 +116,16 @@ public class PgDataAccess : IDataAccess
         var type = typeof(TRepoEntity);
 
         // First - check dictionary to avoid reflection
-        if (_entityContexts.ContainsKey(type))
-        {
-            return _entityContexts[type];
-        }
+        if (_entityContexts.ContainsKey(type)) return _entityContexts[type];
 
         // If info is not presented in dictionary scan type and attribute
         var fullName = type.FullName;
 
         var attribute = Attribute.GetCustomAttribute(type, typeof(UseContext)) as UseContext;
         if (attribute == null)
-        {
             throw new ArgumentException(
                 $"Entity {fullName} has no {nameof(UseContext)} attribute. Entity is not supported");
-        }
-        
+
         // Now let's find out which context is suitable
         try
         {

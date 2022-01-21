@@ -10,25 +10,25 @@ namespace AzisFood.DataEngine.ManualTest.Models.Postgres;
 public class Order : PgRepoEntity
 {
     /// <summary>
-    /// Date of order
+    ///     Date of order
     /// </summary>
     [Required]
     public DateTimeOffset OrderDate { get; set; }
-    
+
     /// <summary>
-    /// Total price
+    ///     Total price
     /// </summary>
     [Required]
-    public decimal  Price { get; set; }
-    
+    public decimal Price { get; set; }
+
     /// <summary>
-    /// Quantity of items
+    ///     Quantity of items
     /// </summary>
     [Required]
-    public int  Qty { get; set; }
-    
+    public int Qty { get; set; }
+
     /// <summary>
-    /// Description
+    ///     Description
     /// </summary>
     public string? Description { get; set; }
 }

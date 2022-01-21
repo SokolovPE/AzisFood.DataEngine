@@ -30,7 +30,8 @@ public static class InitExtensions
     }
 
     public static IServiceCollection AddMongoConnect(this IServiceCollection serviceCollection, string connectName)
-        => serviceCollection.AddSingleton(provider =>
+    {
+        return serviceCollection.AddSingleton(provider =>
         {
             try
             {
@@ -46,12 +47,13 @@ public static class InitExtensions
                     e);
             }
         });
-    
+    }
+
     public static IServiceCollection AddMongoSupport(this IServiceCollection serviceCollection)
     {
         // Register mapping of Guid to string of MongoDb
         BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
-        
+
         return serviceCollection.AddSingleton<IDataAccess, MongoDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
             .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))

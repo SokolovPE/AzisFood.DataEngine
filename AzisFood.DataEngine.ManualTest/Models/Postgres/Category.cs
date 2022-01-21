@@ -9,9 +9,7 @@ namespace AzisFood.DataEngine.ManualTest.Models.Postgres;
 [UseContext(nameof(CatalogDbContext))]
 public class Category : PgRepoEntity
 {
-    [Required]
-    public string Title { get; set; } = null!;
+    [Required] public string Title { get; set; } = null!;
 
-    [Required]
-    public int Order { get; set; }
+    [Required] public int Order { get; set; }
 }

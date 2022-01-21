@@ -7,7 +7,7 @@ namespace AzisFood.DataEngine.Postgres.Models;
 public abstract class PgRepoEntity : IRepoEntity
 {
     /// <summary>
-    /// Identifier
+    ///     Identifier
     /// </summary>
     [Key]
     public Guid Id { get; set; }

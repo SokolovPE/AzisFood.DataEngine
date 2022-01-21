@@ -5,19 +5,19 @@ using AzisFood.DataEngine.Mongo.Models;
 namespace AzisFood.DataEngine.ManualTest.Models.Mongo;
 
 /// <summary>
-/// Measurement unit
+///     Measurement unit
 /// </summary>
 [SupportedBy(DatabaseType.Mongo)]
 [UseContext("service")]
 public class Unit : MongoRepoEntity
 {
     /// <summary>
-    /// Unit code
+    ///     Unit code
     /// </summary>
     public string Code { get; set; }
-    
+
     /// <summary>
-    /// Unit title
+    ///     Unit title
     /// </summary>
     public string Title { get; set; }
 }

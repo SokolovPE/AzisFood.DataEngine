@@ -5,24 +5,24 @@ using AzisFood.DataEngine.Mongo.Models;
 namespace AzisFood.DataEngine.ManualTest.Models.Mongo;
 
 /// <summary>
-/// Model of product category
+///     Model of product category
 /// </summary>
 [SupportedBy(DatabaseType.Mongo)]
 [UseContext("catalog")]
-public class Category: MongoRepoEntity
+public class Category : MongoRepoEntity
 {
     /// <summary>
-    /// Title of category
+    ///     Title of category
     /// </summary>
     public string Title { get; set; }
-    
+
     /// <summary>
-    /// Possible subcategories
+    ///     Possible subcategories
     /// </summary>
     public Guid[] SubCategories { get; set; }
-    
+
     /// <summary>
-    /// Order of category
+    ///     Order of category
     /// </summary>
     public int Order { get; set; }
 }

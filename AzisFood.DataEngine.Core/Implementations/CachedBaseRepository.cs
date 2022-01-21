@@ -15,15 +15,14 @@ using StackExchange.Redis;
 
 namespace AzisFood.DataEngine.Core.Implementations;
 
-public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEntity> where TRepoEntity : class, IRepoEntity, new()
+public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEntity>
+    where TRepoEntity : class, IRepoEntity, new()
 {
-    public string RepoEntityName { get; init; }
-    private readonly ILogger<CachedBaseRepository<TRepoEntity>> _logger;
+    private readonly IBaseRepository<TRepoEntity> _base;
     private readonly IRedisCacheService _cacheService;
+    private readonly ILogger<CachedBaseRepository<TRepoEntity>> _logger;
     private readonly IProducerService<TRepoEntity> _producerService;
     private readonly ITracer _tracer;
-
-    private readonly IBaseRepository<TRepoEntity> _base;
 
     public CachedBaseRepository(IBaseRepository<TRepoEntity> @base, ILogger<CachedBaseRepository<TRepoEntity>> logger,
         IRedisCacheService cacheService,
@@ -37,25 +36,39 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         RepoEntityName = _base.RepoEntityName;
     }
 
-    public async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default) =>
-        await Get(false, token);
+    public string RepoEntityName { get; init; }
 
-    public async Task<TRepoEntity> GetAsync(Guid id, CancellationToken token = default) =>
-        await Get(id, false, token);
+    public async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default)
+    {
+        return await Get(false, token);
+    }
+
+    public async Task<TRepoEntity> GetAsync(Guid id, CancellationToken token = default)
+    {
+        return await Get(id, false, token);
+    }
 
     public async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
-        CancellationToken token = default) =>
-        await GetFiltered(filter, false, token);
+        CancellationToken token = default)
+    {
+        return await GetFiltered(filter, false, token);
+    }
 
-    public async Task<IEnumerable<TRepoEntity>> GetHashAsync(CancellationToken token = default) =>
-        await Get(token: token);
+    public async Task<IEnumerable<TRepoEntity>> GetHashAsync(CancellationToken token = default)
+    {
+        return await Get(token: token);
+    }
 
-    public async Task<TRepoEntity> GetHashAsync(Guid id, CancellationToken token = default) =>
-        await Get(id, token: token);
+    public async Task<TRepoEntity> GetHashAsync(Guid id, CancellationToken token = default)
+    {
+        return await Get(id, token: token);
+    }
 
     public async Task<IEnumerable<TRepoEntity>> GetHashAsync(Expression<Func<TRepoEntity, bool>> filter,
-        CancellationToken token = default) =>
-        await GetFiltered(filter, token: token);
+        CancellationToken token = default)
+    {
+        return await GetFiltered(filter, token: token);
+    }
 
     public async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
     {
@@ -164,7 +177,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     }
 
     /// <summary>
-    /// Get items from cache
+    ///     Get items from cache
     /// </summary>
     /// <param name="hashMode">Get from HashSet</param>
     /// <param name="token">Token for operation cancel</param>
@@ -219,7 +232,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     }
 
     /// <summary>
-    /// Get items from cache
+    ///     Get items from cache
     /// </summary>
     /// <param name="hashMode">Get from HashSet</param>
     /// <param name="filter">Condition to filter</param>
@@ -278,7 +291,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     }
 
     /// <summary>
-    /// Get item from cache
+    ///     Get item from cache
     /// </summary>
     /// <param name="id">Identifier of entry</param>
     /// <param name="hashMode">Get from HashSet</param>

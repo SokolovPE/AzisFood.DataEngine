@@ -1,7 +1,7 @@
 namespace AzisFood.DataEngine.Postgres.Models;
 
 /// <summary>
-/// Postgres options
+///     Postgres options
 /// </summary>
 public class PgOptions
 {

@@ -1,7 +1,7 @@
 namespace AzisFood.DataEngine.Mongo.Implementations;
 
 /// <summary>
-/// MongoDB options
+///     MongoDB options
 /// </summary>
 public class MongoOptions
 {

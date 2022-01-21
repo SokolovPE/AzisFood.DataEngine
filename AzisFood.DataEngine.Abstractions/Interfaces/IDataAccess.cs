@@ -16,7 +16,7 @@ public interface IDataAccess
     ///     Type of database to work with
     /// </summary>
     public string DbType { get; set; }
-    
+
     /// <summary>
     ///     Get all entities
     /// </summary>

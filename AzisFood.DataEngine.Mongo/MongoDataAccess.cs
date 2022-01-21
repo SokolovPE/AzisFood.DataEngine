@@ -17,9 +17,9 @@ namespace AzisFood.DataEngine.Mongo;
 /// <inheritdoc />
 public class MongoDataAccess : IDataAccess
 {
-    private readonly MongoOptions _options;
     private readonly IEnumerable<IMongoDatabase> _databases;
     private readonly Dictionary<Type, IMongoDatabase> _entityDatabases;
+    private readonly MongoOptions _options;
 
     public MongoDataAccess(IEnumerable<IMongoDatabase> databases, MongoOptions options)
     {
@@ -114,7 +114,7 @@ public class MongoDataAccess : IDataAccess
     }
 
     /// <summary>
-    /// Get entity client for given type
+    ///     Get entity client for given type
     /// </summary>
     /// <typeparam name="TRepoEntity">Entity type</typeparam>
     /// <exception cref="ArgumentException">If entity contains no required attribute exception will be thrown</exception>
@@ -123,21 +123,16 @@ public class MongoDataAccess : IDataAccess
         var type = typeof(TRepoEntity);
 
         // First - check dictionary to avoid reflection
-        if (_entityDatabases.ContainsKey(type))
-        {
-            return _entityDatabases[type];
-        }
+        if (_entityDatabases.ContainsKey(type)) return _entityDatabases[type];
 
         // If info is not presented in dictionary scan type and attribute
         var fullName = type.FullName;
 
         var attribute = Attribute.GetCustomAttribute(type, typeof(UseContext)) as UseContext;
         if (attribute == null)
-        {
             throw new ArgumentException(
                 $"Entity {fullName} has no {nameof(UseContext)} attribute. Entity is not supported");
-        }
-        
+
         // Now let's find out which context is suitable
         try
         {

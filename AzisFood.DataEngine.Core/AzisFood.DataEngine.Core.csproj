@@ -9,17 +9,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AzisFood.DataEngine.Abstractions\AzisFood.DataEngine.Abstractions.csproj" />
+        <ProjectReference Include="..\AzisFood.DataEngine.Abstractions\AzisFood.DataEngine.Abstractions.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-      <PackageReference Include="AzisFood.CacheService.Abstractions" Version="1.0.0.1" />
-      <PackageReference Include="AzisFood.CacheService.Redis" Version="1.0.0.5" />
-      <PackageReference Include="AzisFood.MQ.Rabbit" Version="1.0.1.2" />
-      <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-      <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.8.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0"/>
+        <PackageReference Include="AzisFood.CacheService.Abstractions" Version="1.0.0.1"/>
+        <PackageReference Include="AzisFood.CacheService.Redis" Version="1.0.0.5"/>
+        <PackageReference Include="AzisFood.MQ.Rabbit" Version="1.0.1.2"/>
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.1"/>
+        <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.8.0"/>
     </ItemGroup>
 
 </Project>
