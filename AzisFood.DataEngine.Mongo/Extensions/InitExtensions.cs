@@ -41,14 +41,16 @@ public static class InitExtensions
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
     /// <param name="configuration">Application configuration</param>
-    public static IServiceCollection AddMongoSupport(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static IServiceCollection AddMongoSupport(this IServiceCollection serviceCollection,
+        IConfiguration configuration)
     {
         // Register mapping of Guid to string of MongoDb
         BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 
         return serviceCollection
             .Configure<MongoOptions>(configuration.GetSection(nameof(MongoOptions)))
-            .AddSingleton(sp => sp.GetRequiredService<IOptions<MongoOptions>>().Value).AddSingleton<IDataAccess, MongoDataAccess>()
+            .AddSingleton(sp => sp.GetRequiredService<IOptions<MongoOptions>>().Value)
+            .AddSingleton<IDataAccess, MongoDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
             .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))
             .AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));

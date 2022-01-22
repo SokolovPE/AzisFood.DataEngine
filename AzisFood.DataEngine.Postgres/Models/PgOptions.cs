@@ -5,5 +5,5 @@ namespace AzisFood.DataEngine.Postgres.Models;
 /// </summary>
 public class PgOptions
 {
-    public PgConnect[] Connections { get; set; }
+    public PgConnectOptions[] Connections { get; set; }
 }

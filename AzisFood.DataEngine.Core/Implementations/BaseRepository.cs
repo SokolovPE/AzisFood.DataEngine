@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AzisFood.DataEngine.Core.Implementations;
 
-public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TRepoEntity : class, IRepoEntity, new()
+public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TRepoEntity : class, IRepoEntity, new()
 {
     private readonly IEnumerable<IDataAccess> _dataAccesses;
     private readonly Dictionary<Type, IDataAccess> _entityDataAccesses;
@@ -30,13 +30,13 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
 
     public string RepoEntityName { get; init; }
 
-    public virtual async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default)
+    public async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default)
     {
         _logger.LogInformation($"Requested all {RepoEntityName} items");
         try
         {
             token.ThrowIfCancellationRequested();
-            var repoEntities = await DataAccess<TRepoEntity>().GetAllAsync<TRepoEntity>(token);
+            var repoEntities = await DataAccess().GetAllAsync<TRepoEntity>(token);
             _logger.LogInformation(
                 $"Request of all {RepoEntityName} items succeeded");
             return repoEntities;
@@ -53,13 +53,13 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
         }
     }
 
-    public virtual async Task<TRepoEntity> GetAsync(Guid id, CancellationToken token = default)
+    public async Task<TRepoEntity> GetAsync(Guid id, CancellationToken token = default)
     {
         _logger.LogInformation($"Requested {RepoEntityName} with id: {id}");
         try
         {
             token.ThrowIfCancellationRequested();
-            var repoEntity = await DataAccess<TRepoEntity>().GetAsync<TRepoEntity>(id, token);
+            var repoEntity = await DataAccess().GetAsync<TRepoEntity>(id, token);
             if (repoEntity == null) throw new InvalidOperationException($"{RepoEntityName} with id {id} was not found");
             _logger.LogInformation($"Request of {RepoEntityName} with id: {id} succeeded");
             return repoEntity;
@@ -76,7 +76,7 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
         }
     }
 
-    public virtual async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
+    public async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
         CancellationToken token = default)
     {
         _logger.LogInformation($"Requested filtered {RepoEntityName} items, filter: {filter}");
@@ -84,7 +84,7 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
         {
             token.ThrowIfCancellationRequested();
 
-            var repoEntities = await DataAccess<TRepoEntity>().GetAsync(filter, token);
+            var repoEntities = await DataAccess().GetAsync(filter, token);
             _logger.LogInformation(
                 $"Request of filtered {RepoEntityName} items succeeded, filter: {filter}");
             return repoEntities;
@@ -102,13 +102,13 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
         }
     }
 
-    public virtual async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
+    public async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
     {
         _logger.LogInformation($"Requested creation of {RepoEntityName}: {JsonConvert.SerializeObject(item)}");
         try
         {
             token.ThrowIfCancellationRequested();
-            await DataAccess<TRepoEntity>().CreateAsync(item, token);
+            await DataAccess().CreateAsync(item, token);
             _logger.LogInformation($"Requested creation of {RepoEntityName} succeeded");
             return item;
         }
@@ -124,13 +124,13 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
         }
     }
 
-    public virtual async Task UpdateAsync(Guid id, TRepoEntity itemIn, CancellationToken token = default)
+    public async Task UpdateAsync(Guid id, TRepoEntity itemIn, CancellationToken token = default)
     {
         _logger.LogInformation(
             $"Requested update of {RepoEntityName} with id {id} with new value: {JsonConvert.SerializeObject(itemIn)}");
         try
         {
-            await DataAccess<TRepoEntity>().UpdateAsync(id, itemIn, token);
+            await DataAccess().UpdateAsync(id, itemIn, token);
             _logger.LogInformation($"Requested update of {RepoEntityName} succeeded");
         }
         catch (OperationCanceledException)
@@ -144,12 +144,12 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
         }
     }
 
-    public virtual async Task RemoveAsync(TRepoEntity itemIn, CancellationToken token = default)
+    public async Task RemoveAsync(TRepoEntity itemIn, CancellationToken token = default)
     {
         _logger.LogInformation($"Requested delete of {RepoEntityName}: {JsonConvert.SerializeObject(itemIn)}");
         try
         {
-            await DataAccess<TRepoEntity>().RemoveAsync(itemIn, token);
+            await DataAccess().RemoveAsync(itemIn, token);
             _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
         }
         catch (OperationCanceledException)
@@ -163,12 +163,12 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
         }
     }
 
-    public virtual async Task RemoveAsync(Guid id, CancellationToken token = default)
+    public async Task RemoveAsync(Guid id, CancellationToken token = default)
     {
         _logger.LogInformation($"Requested delete of {RepoEntityName} with id {id}");
         try
         {
-            await DataAccess<TRepoEntity>().RemoveAsync<TRepoEntity>(id, token);
+            await DataAccess().RemoveAsync<TRepoEntity>(id, token);
             _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
         }
         catch (OperationCanceledException)
@@ -182,12 +182,12 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
         }
     }
 
-    public virtual async Task RemoveAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
+    public async Task RemoveAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
     {
         _logger.LogInformation($"Requested delete of {RepoEntityName} with filter {filter}");
         try
         {
-            await DataAccess<TRepoEntity>().RemoveAsync(filter, token);
+            await DataAccess().RemoveAsync(filter, token);
             _logger.LogInformation($"Requested delete of {RepoEntityName} with filter {filter} succeeded");
         }
         catch (OperationCanceledException)
@@ -201,13 +201,13 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
         }
     }
 
-    public virtual async Task RemoveManyAsync(Guid[] ids, CancellationToken token = default)
+    public async Task RemoveManyAsync(Guid[] ids, CancellationToken token = default)
     {
         _logger.LogInformation(
             $"Requested delete of multiple {RepoEntityName} with ids {JsonConvert.SerializeObject(ids)}");
         try
         {
-            await DataAccess<TRepoEntity>().RemoveManyAsync<TRepoEntity>(ids, token);
+            await DataAccess().RemoveManyAsync<TRepoEntity>(ids, token);
             _logger.LogInformation($"Requested delete of multiple {RepoEntityName} succeeded");
         }
         catch (OperationCanceledException)
@@ -222,11 +222,11 @@ public class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TR
     }
 
     /// <summary>
-    ///     Get dat aaccess for given type
+    ///     Get data access for given type
     /// </summary>
     /// <typeparam name="TRepoEntity">Entity type</typeparam>
     /// <exception cref="ArgumentException">If entity contains no required attribute exception will be thrown</exception>
-    private IDataAccess DataAccess<TRepoEntity>() where TRepoEntity : class, IRepoEntity
+    private IDataAccess DataAccess()
     {
         var type = typeof(TRepoEntity);
 

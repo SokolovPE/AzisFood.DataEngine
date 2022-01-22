@@ -1,8 +1,8 @@
 using System.Text.Json;
 using AzisFood.DataEngine.Abstractions.Interfaces;
-using AzisFood.DataEngine.ManualTest.Models.Postgres;
 using AzisFood.DataEngine.Mongo.Extensions;
 using AzisFood.DataEngine.Postgres.Extensions;
+using AzisFood.DataEngine.Postgres.Models;
 using MongoCategory = AzisFood.DataEngine.ManualTest.Models.Mongo.Category;
 using MongoUnit = AzisFood.DataEngine.ManualTest.Models.Mongo.Unit;
 using PostgresCategory = AzisFood.DataEngine.ManualTest.Models.Postgres.Category;
@@ -11,9 +11,7 @@ using PostgresOrder = AzisFood.DataEngine.ManualTest.Models.Postgres.Order;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddPostgresSupport(builder.Configuration)
-    .AddPostgresContext<CatalogDbContext>("catalog")
-    .AddPostgresContext<PostgresDbContext>("postgres");
+    .AddPostgresSupport(builder.Configuration, new PgConfiguration(true));
 
 builder.Services
     .AddMongoSupport(builder.Configuration)

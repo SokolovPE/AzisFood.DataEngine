@@ -15,6 +15,7 @@ public static class InitExtensions
 {
     /// <summary>
     ///     Add postgres database context
+    ///     Use if auto context registration is disabled
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
     /// <param name="contextName">Name of context from configuration</param>
@@ -47,9 +48,12 @@ public static class InitExtensions
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
     /// <param name="configuration">Application configuration</param>
+    /// <param name="options">Additional options</param>
     public static IServiceCollection AddPostgresSupport(this IServiceCollection serviceCollection,
-        IConfiguration configuration)
+        IConfiguration configuration, PgConfiguration options = null)
     {
+        if (options is {ContextContextAutoRegister: true}) PgContextConfigurator.RegisterContexts(serviceCollection);
+
         return serviceCollection
             .Configure<PgOptions>(configuration.GetSection(nameof(PgOptions)))
             .AddSingleton(sp => sp.GetRequiredService<IOptions<PgOptions>>().Value)

@@ -15,7 +15,7 @@ public static class FakeEntityFactory
     /// <returns>Instance of fake entity</returns>
     public static FakeEntity CreateRandom()
     {
-        return new()
+        return new FakeEntity
         {
             Id = Guid.NewGuid(), LongField = new Random(2).Next(-100000, 100000),
             StringField = StringHelper.RandomString(50)
