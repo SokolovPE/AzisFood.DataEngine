@@ -20,14 +20,8 @@ public static class MongoConnectionConfigurator
     internal static void RegisterConnections(IServiceCollection serviceCollection, IConfiguration configuration)
     {
         var config = configuration.GetSection(nameof(MongoOptions)).Get<MongoOptions>();
-        if (config == null)
-        {
-            throw new Exception("Mongo was not configured in application settings");
-        }
+        if (config == null) throw new Exception("Mongo was not configured in application settings");
 
-        foreach (var connect in config.Connections)
-        {
-            serviceCollection.AddMongoConnect(connect);
-        }
+        foreach (var connect in config.Connections) serviceCollection.AddMongoConnect(connect);
     }
 }

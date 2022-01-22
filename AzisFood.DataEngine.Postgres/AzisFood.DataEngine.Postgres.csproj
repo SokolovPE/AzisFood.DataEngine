@@ -4,31 +4,31 @@
         <TargetFramework>net6.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Mongo</Title>
-        <PackageVersion>1.1.0.4</PackageVersion>
+        <PackageVersion>1.1.0.5</PackageVersion>
         <Authors>AzisFood</Authors>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AzisFood.CacheService.Abstractions" Version="1.0.0.1" />
-        <PackageReference Include="AzisFood.CacheService.Redis" Version="1.0.0.5" />
-        <PackageReference Include="AzisFood.MQ.Rabbit" Version="1.0.1.2" />
+        <PackageReference Include="AzisFood.CacheService.Abstractions" Version="1.0.0.1"/>
+        <PackageReference Include="AzisFood.CacheService.Redis" Version="1.0.0.5"/>
+        <PackageReference Include="AzisFood.MQ.Rabbit" Version="1.0.1.2"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.2" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.2"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AzisFood.DataEngine.Abstractions\AzisFood.DataEngine.Abstractions.csproj" />
-        <ProjectReference Include="..\AzisFood.DataEngine.Core\AzisFood.DataEngine.Core.csproj" />
+        <ProjectReference Include="..\AzisFood.DataEngine.Abstractions\AzisFood.DataEngine.Abstractions.csproj"/>
+        <ProjectReference Include="..\AzisFood.DataEngine.Core\AzisFood.DataEngine.Core.csproj"/>
     </ItemGroup>
 
 </Project>

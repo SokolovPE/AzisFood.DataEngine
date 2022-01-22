@@ -23,9 +23,12 @@ public static class InitExtensions
     /// <param name="connectConfigurationSettings">Mongo connect configuration</param>
     /// <returns></returns>
     public static IServiceCollection AddMongoConnect(this IServiceCollection serviceCollection,
-        MongoConnectConfiguration connectConfigurationSettings) => serviceCollection.AddSingleton(provider =>
-        new MongoClient(connectConfigurationSettings.ConnectionString).GetDatabase(
-            connectConfigurationSettings.Database));
+        MongoConnectConfiguration connectConfigurationSettings)
+    {
+        return serviceCollection.AddSingleton(provider =>
+            new MongoClient(connectConfigurationSettings.ConnectionString).GetDatabase(
+                connectConfigurationSettings.Database));
+    }
 
     /// <summary>
     ///     Register mongo connection
@@ -66,7 +69,7 @@ public static class InitExtensions
 
         if (engineConfiguration is {ContextContextAutoRegister: true})
             MongoConnectionConfigurator.RegisterConnections(serviceCollection, configuration);
-        
+
         return serviceCollection
             .Configure<MongoOptions>(configuration.GetSection(nameof(MongoOptions)))
             .AddSingleton(sp => sp.GetRequiredService<IOptions<MongoOptions>>().Value)

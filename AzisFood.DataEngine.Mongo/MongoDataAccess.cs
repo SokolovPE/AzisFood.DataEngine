@@ -17,9 +17,9 @@ namespace AzisFood.DataEngine.Mongo;
 /// <inheritdoc />
 public class MongoDataAccess : IDataAccess
 {
-    private readonly IEnumerable<IMongoDatabase> _databases;
+    private readonly IEnumerable<IMongoDatabase> _databases = null!;
     private readonly Dictionary<Type, IMongoDatabase> _entityDatabases;
-    private readonly MongoOptions _options;
+    private readonly MongoOptions _options = null!;
 
     public MongoDataAccess(IEnumerable<IMongoDatabase> databases, MongoOptions options)
     {
@@ -31,8 +31,7 @@ public class MongoDataAccess : IDataAccess
     // For tests
     public MongoDataAccess(IMongoDatabase database, Type type)
     {
-        _entityDatabases = new Dictionary<Type, IMongoDatabase>();
-        _entityDatabases.Add(type, database);
+        _entityDatabases = new Dictionary<Type, IMongoDatabase> {{type, database}};
     }
 
     /// <inheritdoc />

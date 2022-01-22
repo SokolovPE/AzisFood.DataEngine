@@ -11,7 +11,8 @@ using Newtonsoft.Json;
 
 namespace AzisFood.DataEngine.Core.Implementations;
 
-public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity> where TRepoEntity : class, IRepoEntity, new()
+public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
+    where TRepoEntity : class, IRepoEntity, new()
 {
     private readonly IEnumerable<IDataAccess> _dataAccesses;
     private readonly Dictionary<Type, IDataAccess> _entityDataAccesses;
