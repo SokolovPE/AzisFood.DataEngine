@@ -16,19 +16,6 @@ namespace AzisFood.DataEngine.Mongo.Extensions;
 
 public static class InitExtensions
 {
-    /// <summary>
-    ///     Register mongo options
-    /// </summary>
-    /// <param name="serviceCollection">Collection of services</param>
-    /// <param name="configuration">Application configuration</param>
-    public static IServiceCollection AddMongoOptions(this IServiceCollection serviceCollection,
-        IConfiguration configuration)
-    {
-        return serviceCollection
-            .Configure<MongoOptions>(configuration.GetSection(nameof(MongoOptions)))
-            .AddSingleton(sp => sp.GetRequiredService<IOptions<MongoOptions>>().Value);
-    }
-
     public static IServiceCollection AddMongoConnect(this IServiceCollection serviceCollection, string connectName)
     {
         return serviceCollection.AddSingleton(provider =>
@@ -49,12 +36,19 @@ public static class InitExtensions
         });
     }
 
-    public static IServiceCollection AddMongoSupport(this IServiceCollection serviceCollection)
+    /// <summary>
+    ///     Register mongo
+    /// </summary>
+    /// <param name="serviceCollection">Collection of services</param>
+    /// <param name="configuration">Application configuration</param>
+    public static IServiceCollection AddMongoSupport(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
         // Register mapping of Guid to string of MongoDb
         BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 
-        return serviceCollection.AddSingleton<IDataAccess, MongoDataAccess>()
+        return serviceCollection
+            .Configure<MongoOptions>(configuration.GetSection(nameof(MongoOptions)))
+            .AddSingleton(sp => sp.GetRequiredService<IOptions<MongoOptions>>().Value).AddSingleton<IDataAccess, MongoDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
             .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))
             .AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));

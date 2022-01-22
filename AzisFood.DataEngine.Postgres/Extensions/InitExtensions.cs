@@ -14,19 +14,6 @@ namespace AzisFood.DataEngine.Postgres.Extensions;
 public static class InitExtensions
 {
     /// <summary>
-    ///     Register postgres options
-    /// </summary>
-    /// <param name="serviceCollection">Collection of services</param>
-    /// <param name="configuration">Application configuration</param>
-    public static IServiceCollection AddPostgresOptions(this IServiceCollection serviceCollection,
-        IConfiguration configuration)
-    {
-        return serviceCollection
-            .Configure<PgOptions>(configuration.GetSection(nameof(PgOptions)))
-            .AddSingleton(sp => sp.GetRequiredService<IOptions<PgOptions>>().Value);
-    }
-
-    /// <summary>
     ///     Add postgres database context
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
@@ -55,9 +42,18 @@ public static class InitExtensions
             .AddTransient<DbContext, TContext>();
     }
 
-    public static IServiceCollection AddPostgresSupport(this IServiceCollection serviceCollection)
+    /// <summary>
+    ///     Register postgres
+    /// </summary>
+    /// <param name="serviceCollection">Collection of services</param>
+    /// <param name="configuration">Application configuration</param>
+    public static IServiceCollection AddPostgresSupport(this IServiceCollection serviceCollection,
+        IConfiguration configuration)
     {
-        return serviceCollection.AddSingleton<IDataAccess, PgDataAccess>()
+        return serviceCollection
+            .Configure<PgOptions>(configuration.GetSection(nameof(PgOptions)))
+            .AddSingleton(sp => sp.GetRequiredService<IOptions<PgOptions>>().Value)
+            .AddSingleton<IDataAccess, PgDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
             .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))
             .AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));

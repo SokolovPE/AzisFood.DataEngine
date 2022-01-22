@@ -11,16 +11,14 @@ using PostgresOrder = AzisFood.DataEngine.ManualTest.Models.Postgres.Order;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddPostgresOptions(builder.Configuration)
+    .AddPostgresSupport(builder.Configuration)
     .AddPostgresContext<CatalogDbContext>("catalog")
-    .AddPostgresContext<PostgresDbContext>("postgres")
-    .AddPostgresSupport();
+    .AddPostgresContext<PostgresDbContext>("postgres");
 
 builder.Services
-    .AddMongoOptions(builder.Configuration)
+    .AddMongoSupport(builder.Configuration)
     .AddMongoConnect("catalog")
-    .AddMongoConnect("service")
-    .AddMongoSupport();
+    .AddMongoConnect("service");
 
 var app = builder.Build();
 
