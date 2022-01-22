@@ -48,11 +48,12 @@ public static class InitExtensions
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
     /// <param name="configuration">Application configuration</param>
-    /// <param name="options">Additional options</param>
+    /// <param name="engineConfiguration">Additional options</param>
     public static IServiceCollection AddPostgresSupport(this IServiceCollection serviceCollection,
-        IConfiguration configuration, PgConfiguration options = null)
+        IConfiguration configuration, EngineConfiguration engineConfiguration = null)
     {
-        if (options is {ContextContextAutoRegister: true}) PgContextConfigurator.RegisterContexts(serviceCollection);
+        if (engineConfiguration is {ContextContextAutoRegister: true})
+            PgContextConfigurator.RegisterContexts(serviceCollection, configuration);
 
         return serviceCollection
             .Configure<PgOptions>(configuration.GetSection(nameof(PgOptions)))

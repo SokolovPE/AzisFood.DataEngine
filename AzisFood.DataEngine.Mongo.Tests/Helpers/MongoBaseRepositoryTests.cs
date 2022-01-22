@@ -37,7 +37,7 @@ public class MongoBaseRepositoryTests : IClassFixture<FakeEntityFixture>
         var mongoOptions = Mock.Of<MongoOptions>();
         mongoOptions.Connections = new[]
         {
-            new MongoConnect
+            new MongoConnectConfiguration
             {
                 Database = "fake-database",
                 ConnectionString = "fake-connection-string",

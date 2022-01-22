@@ -5,5 +5,5 @@ namespace AzisFood.DataEngine.Mongo.Implementations;
 /// </summary>
 public class MongoOptions
 {
-    public MongoConnect[] Connections { get; set; }
+    public MongoConnectConfiguration[] Connections { get; set; }
 }

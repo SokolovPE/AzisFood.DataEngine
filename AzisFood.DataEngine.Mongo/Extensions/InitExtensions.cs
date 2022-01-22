@@ -16,6 +16,22 @@ namespace AzisFood.DataEngine.Mongo.Extensions;
 
 public static class InitExtensions
 {
+    /// <summary>
+    ///     Register mongo connection
+    /// </summary>
+    /// <param name="serviceCollection">Collection of services</param>
+    /// <param name="connectConfigurationSettings">Mongo connect configuration</param>
+    /// <returns></returns>
+    public static IServiceCollection AddMongoConnect(this IServiceCollection serviceCollection,
+        MongoConnectConfiguration connectConfigurationSettings) => serviceCollection.AddSingleton(provider =>
+        new MongoClient(connectConfigurationSettings.ConnectionString).GetDatabase(
+            connectConfigurationSettings.Database));
+
+    /// <summary>
+    ///     Register mongo connection
+    /// </summary>
+    /// <param name="serviceCollection">Collection of services</param>
+    /// <param name="connectName">Name of connection from application settings</param>
     public static IServiceCollection AddMongoConnect(this IServiceCollection serviceCollection, string connectName)
     {
         return serviceCollection.AddSingleton(provider =>
@@ -41,12 +57,16 @@ public static class InitExtensions
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
     /// <param name="configuration">Application configuration</param>
+    /// <param name="engineConfiguration">Additional options</param>
     public static IServiceCollection AddMongoSupport(this IServiceCollection serviceCollection,
-        IConfiguration configuration)
+        IConfiguration configuration, EngineConfiguration engineConfiguration = null)
     {
         // Register mapping of Guid to string of MongoDb
         BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 
+        if (engineConfiguration is {ContextContextAutoRegister: true})
+            MongoConnectionConfigurator.RegisterConnections(serviceCollection, configuration);
+        
         return serviceCollection
             .Configure<MongoOptions>(configuration.GetSection(nameof(MongoOptions)))
             .AddSingleton(sp => sp.GetRequiredService<IOptions<MongoOptions>>().Value)

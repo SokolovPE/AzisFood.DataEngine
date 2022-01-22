@@ -1,11 +1,11 @@
-namespace AzisFood.DataEngine.Postgres.Models;
+namespace AzisFood.DataEngine.Core;
 
 /// <summary>
 ///     Additional configuration of postgres
 /// </summary>
-public class PgConfiguration
+public class EngineConfiguration
 {
-    public PgConfiguration(bool contextAutoRegister = false)
+    public EngineConfiguration(bool contextAutoRegister = false)
     {
         ContextContextAutoRegister = contextAutoRegister;
     }
@@ -13,5 +13,5 @@ public class PgConfiguration
     /// <summary>
     ///     Automatically register all available db contexts
     /// </summary>
-    public bool ContextContextAutoRegister { get; set; }
+    public bool ContextContextAutoRegister { get; }
 }

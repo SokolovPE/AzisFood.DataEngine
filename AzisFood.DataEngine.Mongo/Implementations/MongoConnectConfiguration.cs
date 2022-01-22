@@ -1,6 +1,6 @@
 ﻿namespace AzisFood.DataEngine.Mongo.Implementations;
 
-public class MongoConnect
+public class MongoConnectConfiguration
 {
     public string ConnectionString { get; set; }
     public string ConnectionName { get; set; }
