@@ -9,6 +9,7 @@ using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
 using AzisFood.DataEngine.Core.Attributes;
 using AzisFood.DataEngine.Core.Extensions;
+using AzisFood.DataEngine.Postgres.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AzisFood.DataEngine.Postgres;
@@ -122,23 +123,24 @@ public class PgDataAccess : IDataAccess
         // If info is not presented in dictionary scan type and attribute
         var fullName = type.FullName;
 
-        var attribute = Attribute.GetCustomAttribute(type, typeof(UseContext)) as UseContext;
-        if (attribute == null)
+        var contextType = type.BaseType?.GetGenericArguments().FirstOrDefault();
+        if (contextType == default)
             throw new ArgumentException(
-                $"Entity {fullName} has no {nameof(UseContext)} attribute. Entity is not supported");
+                $"Entity {fullName} has no specified DbContext. " +
+                $"Specify it via generic parameter of {nameof(PgRepoEntity<DbContext>)}");
 
         // Now let's find out which context is suitable
         try
         {
-            var context = _contexts.First(ctx => ctx.GetType().Name == attribute.ContextName);
+            var context = _contexts.First(ctx => ctx.GetType().Name == contextType.Name);
             _entityContexts.Add(type, context);
             return context;
         }
         catch (InvalidOperationException e)
         {
             throw new ArgumentException(
-                $"There's no context suitable for {fullName}. Verify that at least one registered context has a set for this entity",
-                e);
+                $"There's no context suitable for {fullName}. Verify that at least one registered context " +
+                "has a set for this entity", e);
         }
     }
 }

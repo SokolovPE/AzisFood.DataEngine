@@ -134,10 +134,9 @@ public class Category : MongoRepoEntity
 ```
 
 ### PostgreSQL
-PostgreSQL entity is linked to one of specified DbContexts. Use ```UseContext``` attribute to link entity to DbContext:
+PostgreSQL entity is linked to one of specified DbContexts. Use generic parameter of ```PgRepoEntity``` base class to link entity to DbContext:
 ```csharp
-[UseContext(nameof(CatalogDbContext))]
-public class Category : PgRepoEntity
+public class Category : PgRepoEntity<CatalogDbContext>
 {
     ...
 }

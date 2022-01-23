@@ -1,11 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using AzisFood.DataEngine.Core.Attributes;
 using AzisFood.DataEngine.Postgres.Models;
 
 namespace AzisFood.DataEngine.ManualTest.Models.Postgres;
 
-[UseContext(nameof(CatalogDbContext))]
-public class Category : PgRepoEntity
+public class Category : PgRepoEntity<CatalogDbContext>
 {
     [Required] public string Title { get; set; } = null!;
 

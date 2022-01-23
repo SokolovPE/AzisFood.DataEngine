@@ -1,11 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using AzisFood.DataEngine.Core.Attributes;
 using AzisFood.DataEngine.Postgres.Models;
 
 namespace AzisFood.DataEngine.ManualTest.Models.Postgres;
 
-[UseContext(nameof(PostgresDbContext))]
-public class Order : PgRepoEntity
+public class Order : PgRepoEntity<PostgresDbContext>
 {
     /// <summary>
     ///     Date of order
