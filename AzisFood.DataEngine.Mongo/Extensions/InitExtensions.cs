@@ -34,8 +34,8 @@ public static class InitExtensions
     ///     Register mongo connection
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
-    /// <param name="connectName">Name of connection from application settings</param>
-    public static IServiceCollection AddMongoConnect(this IServiceCollection serviceCollection, string connectName)
+    /// <param name="connectionAlias">Name of connection from application settings</param>
+    public static IServiceCollection AddMongoConnect(this IServiceCollection serviceCollection, string connectionAlias)
     {
         return serviceCollection.AddSingleton(provider =>
         {
@@ -43,14 +43,14 @@ public static class InitExtensions
             {
                 var configs = provider.GetRequiredService<MongoConfiguration>();
                 var config = configs.Connections.First(con =>
-                    string.Equals(con.Alias, connectName, StringComparison.InvariantCultureIgnoreCase));
+                    string.Equals(con.Alias, connectionAlias, StringComparison.InvariantCultureIgnoreCase));
                 
                 return new MongoClient(config.ConnectionString).GetDatabase(config.GetMongoUrl.DatabaseName);
             }
             catch (InvalidOperationException e)
             {
                 throw new Exception(
-                    $"Unable to configure {connectName} make sure that connect is configured in application settings",
+                    $"Unable to configure {connectionAlias} make sure that connect is configured in application settings",
                     e);
             }
         });

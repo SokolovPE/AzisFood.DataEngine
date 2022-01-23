@@ -84,8 +84,7 @@ public static class PgContextConfigurator
                 ?.MakeGenericMethod(context)
                 .Invoke(context, new object[]
                 {
-                    serviceCollection,
-                    connectionSettings.Alias
+                    serviceCollection
                 });
         }
     }

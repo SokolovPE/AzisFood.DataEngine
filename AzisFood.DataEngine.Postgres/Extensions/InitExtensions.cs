@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
+using AzisFood.DataEngine.Core.Attributes;
 using AzisFood.DataEngine.Core.Implementations;
 using AzisFood.DataEngine.Postgres.Models;
 using Microsoft.EntityFrameworkCore;
@@ -18,25 +19,31 @@ public static class InitExtensions
     ///     Use if auto context registration is disabled
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
-    /// <param name="contextName">Name of context from configuration</param>
-    public static IServiceCollection AddPostgresContext<TContext>(this IServiceCollection serviceCollection,
-        string contextName)
+    public static IServiceCollection AddPostgresContext<TContext>(this IServiceCollection serviceCollection)
         where TContext : DbContext
     {
         return serviceCollection
             .AddPooledDbContextFactory<TContext>((serviceProvider, options) =>
             {
+                var contextType = typeof(TContext);
                 try
                 {
                     var configs = serviceProvider.GetRequiredService<PgConfiguration>();
+                    var aliasAttribute =
+                        Attribute.GetCustomAttribute(contextType, typeof(ConnectionAlias)) as ConnectionAlias;
+                    if (aliasAttribute == null)
+                        throw new ArgumentException(
+                            $"Context {contextType.FullName} has no {nameof(ConnectionAlias)} attribute. Context is not supported");
+                    
                     var config = configs.Connections.First(con =>
-                        string.Equals(con.Alias, contextName, StringComparison.InvariantCultureIgnoreCase));
+                        string.Equals(con.Alias, aliasAttribute.Alias, StringComparison.InvariantCultureIgnoreCase));
                     options.UseNpgsql(config.ConnectionString);
                 }
                 catch (InvalidOperationException e)
                 {
                     throw new Exception(
-                        $"Unable to configure {contextName} make sure that context is configured in application settings",
+                        $"Unable to configure {contextType.FullName} make sure that" +
+                        " context is configured in application settings",
                         e);
                 }
             })
