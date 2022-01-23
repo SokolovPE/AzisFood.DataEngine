@@ -89,6 +89,7 @@ Method ```AddPostgresContext``` is used to register PostgreSQL connection, gener
 
 ## Setup DbContext (PostgreSQL only)
 To link DbContext to registered connection use ```ConnectionSettings``` attribute
+
 **TODO: rename to "Alias"**
 ```csharp
 [ConnectionSettings("catalog")]
@@ -111,6 +112,7 @@ public class Category : PgRepoEntity
 }
 
 ```
+
 **TODO: get rid of SupportedBy attribute, it's possible to use parent class to determine which db type is it**
 
 Depending on database type inherit your entity from:
