@@ -3,7 +3,7 @@ using System.Linq;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
 using AzisFood.DataEngine.Core.Implementations;
-using AzisFood.DataEngine.Mongo.Implementations;
+using AzisFood.DataEngine.Mongo.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -41,9 +41,9 @@ public static class InitExtensions
         {
             try
             {
-                var configs = provider.GetRequiredService<MongoOptions>();
+                var configs = provider.GetRequiredService<MongoConfiguration>();
                 var config = configs.Connections.First(con =>
-                    string.Equals(con.ConnectionName, connectName, StringComparison.InvariantCultureIgnoreCase));
+                    string.Equals(con.Alias, connectName, StringComparison.InvariantCultureIgnoreCase));
                 return new MongoClient(config.ConnectionString).GetDatabase(config.Database);
             }
             catch (InvalidOperationException e)
@@ -71,8 +71,8 @@ public static class InitExtensions
             MongoConnectionConfigurator.RegisterConnections(serviceCollection, configuration);
 
         return serviceCollection
-            .Configure<MongoOptions>(configuration.GetSection(nameof(MongoOptions)))
-            .AddSingleton(sp => sp.GetRequiredService<IOptions<MongoOptions>>().Value)
+            .Configure<MongoConfiguration>(configuration.GetSection(nameof(MongoConfiguration)))
+            .AddSingleton(sp => sp.GetRequiredService<IOptions<MongoConfiguration>>().Value)
             .AddSingleton<IDataAccess, MongoDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
             .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))

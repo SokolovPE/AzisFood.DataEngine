@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
 using AzisFood.DataEngine.Core.Attributes;
-using AzisFood.DataEngine.Mongo.Implementations;
+using AzisFood.DataEngine.Mongo.Models;
 using MongoDB.Driver;
 
 namespace AzisFood.DataEngine.Mongo;
@@ -17,14 +17,14 @@ namespace AzisFood.DataEngine.Mongo;
 /// <inheritdoc />
 public class MongoDataAccess : IDataAccess
 {
+    private readonly MongoConfiguration _configuration = null!;
     private readonly IEnumerable<IMongoDatabase> _databases = null!;
     private readonly Dictionary<Type, IMongoDatabase> _entityDatabases;
-    private readonly MongoOptions _options = null!;
 
-    public MongoDataAccess(IEnumerable<IMongoDatabase> databases, MongoOptions options)
+    public MongoDataAccess(IEnumerable<IMongoDatabase> databases, MongoConfiguration configuration)
     {
         _databases = databases;
-        _options = options;
+        _configuration = configuration;
         _entityDatabases = new Dictionary<Type, IMongoDatabase>();
     }
 
@@ -135,7 +135,7 @@ public class MongoDataAccess : IDataAccess
         // Now let's find out which context is suitable
         try
         {
-            var connect = _options.Connections.First(con => con.ConnectionName == attribute.ContextName);
+            var connect = _configuration.Connections.First(con => con.Alias == attribute.ContextName);
             var database = _databases.First(db => db.DatabaseNamespace.DatabaseName == connect.Database);
             _entityDatabases.Add(type, database);
             return database;

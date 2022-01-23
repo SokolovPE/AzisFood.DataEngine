@@ -3,7 +3,7 @@ namespace AzisFood.DataEngine.Postgres.Models;
 /// <summary>
 ///     Postgres options
 /// </summary>
-public class PgOptions
+public class PgConfiguration
 {
     public PgConnectOptions[] Connections { get; set; }
 }

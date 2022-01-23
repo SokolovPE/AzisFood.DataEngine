@@ -45,12 +45,12 @@ public static class PgContextConfigurator
         var scannedContexts = ScanContexts();
         var contexts = scannedContexts as Type[] ?? scannedContexts.ToArray();
 
-        var options = configuration.GetSection(nameof(PgOptions)).Get<PgOptions>();
+        var options = configuration.GetSection(nameof(PgConfiguration)).Get<PgConfiguration>();
         if (options == null) throw new Exception("Postgres was not configured in application settings");
 
         var configuredConnectionNames =
             options.Connections
-                .Select(connection => connection.ConnectionName)
+                .Select(connection => connection.Alias)
                 .ToArray();
 
         // Map connection settings to contexts

@@ -1,6 +1,6 @@
 using System;
 using AzisFood.DataEngine.Mongo.Extensions;
-using AzisFood.DataEngine.Mongo.Implementations;
+using AzisFood.DataEngine.Mongo.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,7 +19,7 @@ public static class MongoConnectionConfigurator
     /// <exception cref="Exception"></exception>
     internal static void RegisterConnections(IServiceCollection serviceCollection, IConfiguration configuration)
     {
-        var config = configuration.GetSection(nameof(MongoOptions)).Get<MongoOptions>();
+        var config = configuration.GetSection(nameof(MongoConfiguration)).Get<MongoConfiguration>();
         if (config == null) throw new Exception("Mongo was not configured in application settings");
 
         foreach (var connect in config.Connections) serviceCollection.AddMongoConnect(connect);

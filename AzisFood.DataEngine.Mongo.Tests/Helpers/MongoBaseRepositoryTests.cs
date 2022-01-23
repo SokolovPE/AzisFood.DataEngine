@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core.Implementations;
-using AzisFood.DataEngine.Mongo.Implementations;
+using AzisFood.DataEngine.Mongo.Models;
 using AzisFood.DataEngine.Mongo.Tests.DataAttributes;
 using AzisFood.DataEngine.Mongo.Tests.Models;
 using Microsoft.Extensions.Logging;
@@ -34,14 +34,14 @@ public class MongoBaseRepositoryTests : IClassFixture<FakeEntityFixture>
 
 
         _testOutputHelper.WriteLine("Constructing...");
-        var mongoOptions = Mock.Of<MongoOptions>();
+        var mongoOptions = Mock.Of<MongoConfiguration>();
         mongoOptions.Connections = new[]
         {
             new MongoConnectConfiguration
             {
                 Database = "fake-database",
                 ConnectionString = "fake-connection-string",
-                ConnectionName = "fake-connection"
+                Alias = "fake-connection"
             }
         };
 

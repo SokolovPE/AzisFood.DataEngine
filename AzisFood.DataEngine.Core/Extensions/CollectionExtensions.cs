@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AzisFood.DataEngine.Core;
+namespace AzisFood.DataEngine.Core.Extensions;
 
 /// <summary>
 ///     Custom collection extensions

@@ -237,7 +237,12 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         // If info is not presented in dictionary scan type and attribute
         var fullName = type.FullName;
 
-        var attribute = Attribute.GetCustomAttribute(type, typeof(SupportedBy)) as SupportedBy;
+        var parentType = type.BaseType;
+        if (parentType == null)
+            throw new ArgumentException(
+                $"Entity {fullName} has no base class. Entity must be based on {nameof(IRepoEntity)} implementation");
+
+        var attribute = Attribute.GetCustomAttribute(parentType, typeof(SupportedBy)) as SupportedBy;
         if (attribute == null)
             throw new ArgumentException(
                 $"Entity {fullName} has no {nameof(SupportedBy)} attribute. Entity is not supported");

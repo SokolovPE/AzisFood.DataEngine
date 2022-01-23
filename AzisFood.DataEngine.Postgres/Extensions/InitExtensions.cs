@@ -28,9 +28,9 @@ public static class InitExtensions
             {
                 try
                 {
-                    var configs = serviceProvider.GetRequiredService<PgOptions>();
+                    var configs = serviceProvider.GetRequiredService<PgConfiguration>();
                     var config = configs.Connections.First(con =>
-                        string.Equals(con.ConnectionName, contextName, StringComparison.InvariantCultureIgnoreCase));
+                        string.Equals(con.Alias, contextName, StringComparison.InvariantCultureIgnoreCase));
                     options.UseNpgsql(config.ConnectionString);
                 }
                 catch (InvalidOperationException e)
@@ -56,8 +56,8 @@ public static class InitExtensions
             PgContextConfigurator.RegisterContexts(serviceCollection, configuration);
 
         return serviceCollection
-            .Configure<PgOptions>(configuration.GetSection(nameof(PgOptions)))
-            .AddSingleton(sp => sp.GetRequiredService<IOptions<PgOptions>>().Value)
+            .Configure<PgConfiguration>(configuration.GetSection(nameof(PgConfiguration)))
+            .AddSingleton(sp => sp.GetRequiredService<IOptions<PgConfiguration>>().Value)
             .AddSingleton<IDataAccess, PgDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
             .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))

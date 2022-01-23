@@ -1,9 +1,9 @@
-namespace AzisFood.DataEngine.Mongo.Implementations;
+namespace AzisFood.DataEngine.Mongo.Models;
 
 /// <summary>
 ///     MongoDB options
 /// </summary>
-public class MongoOptions
+public class MongoConfiguration
 {
     public MongoConnectConfiguration[] Connections { get; set; }
 }
