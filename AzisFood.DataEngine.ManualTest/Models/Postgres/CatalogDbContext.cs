@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AzisFood.DataEngine.ManualTest.Models.Postgres;
 
-[ConnectionSettings("catalog")]
+[ConnectionAlias("catalog")]
 public class CatalogDbContext : DbContext
 {
     public CatalogDbContext(DbContextOptions<CatalogDbContext> options) : base(options)

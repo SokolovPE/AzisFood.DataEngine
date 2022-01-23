@@ -27,7 +27,7 @@ public static class InitExtensions
     {
         return serviceCollection.AddSingleton(provider =>
             new MongoClient(connectConfigurationSettings.ConnectionString).GetDatabase(
-                connectConfigurationSettings.Database));
+                connectConfigurationSettings.GetMongoUrl.DatabaseName));
     }
 
     /// <summary>
@@ -44,7 +44,8 @@ public static class InitExtensions
                 var configs = provider.GetRequiredService<MongoConfiguration>();
                 var config = configs.Connections.First(con =>
                     string.Equals(con.Alias, connectName, StringComparison.InvariantCultureIgnoreCase));
-                return new MongoClient(config.ConnectionString).GetDatabase(config.Database);
+                
+                return new MongoClient(config.ConnectionString).GetDatabase(config.GetMongoUrl.DatabaseName);
             }
             catch (InvalidOperationException e)
             {
@@ -60,18 +61,20 @@ public static class InitExtensions
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
     /// <param name="configuration">Application configuration</param>
-    /// <param name="engineConfiguration">Additional options</param>
     public static IServiceCollection AddMongoSupport(this IServiceCollection serviceCollection,
-        IConfiguration configuration, EngineConfiguration engineConfiguration = null)
+        IConfiguration configuration)
     {
         // Register mapping of Guid to string of MongoDb
         BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
 
-        if (engineConfiguration is {ContextContextAutoRegister: true})
+        // Read config to check for auto registration
+        var pgConfig = configuration.GetSection(nameof(MongoConfiguration));
+        var config = pgConfig.Get<MongoConfiguration>();
+        if (config is {AutoRegistration: true})
             MongoConnectionConfigurator.RegisterConnections(serviceCollection, configuration);
 
         return serviceCollection
-            .Configure<MongoConfiguration>(configuration.GetSection(nameof(MongoConfiguration)))
+            .Configure<MongoConfiguration>(pgConfig)
             .AddSingleton(sp => sp.GetRequiredService<IOptions<MongoConfiguration>>().Value)
             .AddSingleton<IDataAccess, MongoDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))

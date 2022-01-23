@@ -5,15 +5,15 @@ namespace AzisFood.DataEngine.Core.Attributes;
 /// <summary>
 ///     Define connection settings
 /// </summary>
-public class ConnectionSettings : Attribute
+public class ConnectionAlias : Attribute
 {
-    public ConnectionSettings(string name)
+    public ConnectionAlias(string alias)
     {
-        Name = name;
+        Alias = alias;
     }
 
     /// <summary>
-    ///     Name of connection defined in settings
+    ///     Alias of connection defined in settings
     /// </summary>
-    public string Name { get; set; }
+    public string Alias { get; set; }
 }

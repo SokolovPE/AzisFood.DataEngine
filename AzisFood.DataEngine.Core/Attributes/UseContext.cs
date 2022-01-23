@@ -3,7 +3,7 @@ using System;
 namespace AzisFood.DataEngine.Core.Attributes;
 
 /// <summary>
-///     Which context should be used
+///     Which DbContext should be used
 /// </summary>
 public class UseContext : Attribute
 {

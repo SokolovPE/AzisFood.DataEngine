@@ -48,15 +48,17 @@ public static class InitExtensions
     /// </summary>
     /// <param name="serviceCollection">Collection of services</param>
     /// <param name="configuration">Application configuration</param>
-    /// <param name="engineConfiguration">Additional options</param>
     public static IServiceCollection AddPostgresSupport(this IServiceCollection serviceCollection,
-        IConfiguration configuration, EngineConfiguration engineConfiguration = null)
+        IConfiguration configuration)
     {
-        if (engineConfiguration is {ContextContextAutoRegister: true})
+        // Read config to check for auto registration
+        var pgConfig = configuration.GetSection(nameof(PgConfiguration));
+        var config = pgConfig.Get<PgConfiguration>();
+        if (config is {AutoRegistration: true})
             PgContextConfigurator.RegisterContexts(serviceCollection, configuration);
 
         return serviceCollection
-            .Configure<PgConfiguration>(configuration.GetSection(nameof(PgConfiguration)))
+            .Configure<PgConfiguration>(pgConfig)
             .AddSingleton(sp => sp.GetRequiredService<IOptions<PgConfiguration>>().Value)
             .AddSingleton<IDataAccess, PgDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))

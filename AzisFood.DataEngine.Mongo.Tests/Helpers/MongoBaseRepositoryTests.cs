@@ -39,8 +39,7 @@ public class MongoBaseRepositoryTests : IClassFixture<FakeEntityFixture>
         {
             new MongoConnectConfiguration
             {
-                Database = "fake-database",
-                ConnectionString = "fake-connection-string",
+                ConnectionString = "mongodb://0.0.0.0:27017/fake-database",
                 Alias = "fake-connection"
             }
         };

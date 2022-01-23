@@ -28,7 +28,7 @@ public static class PgContextConfigurator
         {
             var contexts = assembly.GetTypes()
                 .Where(type => type.IsClass && type.IsSubclassOf(typeof(DbContext)))
-                .Where(type => Attribute.GetCustomAttribute(type, typeof(ConnectionSettings)) != null);
+                .Where(type => Attribute.GetCustomAttribute(type, typeof(ConnectionAlias)) != null);
 
             foundContexts.AddRange(contexts);
         }
@@ -55,11 +55,11 @@ public static class PgContextConfigurator
 
         // Map connection settings to contexts
         var contextConnectionSettingsMap = contexts.ToDictionary(context => context, context =>
-            Attribute.GetCustomAttribute(context, typeof(ConnectionSettings)) as ConnectionSettings);
+            Attribute.GetCustomAttribute(context, typeof(ConnectionAlias)) as ConnectionAlias);
 
         // Find out which connections were configured but there's no dbContext for them
         var configurationsWithoutContexts = configuredConnectionNames.Where(connectionName =>
-                !contextConnectionSettingsMap.Select(map => map.Value.Name).Contains(connectionName))
+                !contextConnectionSettingsMap.Select(map => map.Value.Alias).Contains(connectionName))
             .ToArray();
 
         if (configurationsWithoutContexts.Length > 0)
@@ -70,7 +70,7 @@ public static class PgContextConfigurator
         foreach (var context in contexts)
         {
             var connectionSettings = contextConnectionSettingsMap[context];
-            if (connectionSettings == null || !configuredConnectionNames.Contains(connectionSettings.Name))
+            if (connectionSettings == null || !configuredConnectionNames.Contains(connectionSettings.Alias))
             {
                 // Need to write log here...
                 Console.Error.WriteLine(
@@ -85,7 +85,7 @@ public static class PgContextConfigurator
                 .Invoke(context, new object[]
                 {
                     serviceCollection,
-                    connectionSettings.Name
+                    connectionSettings.Alias
                 });
         }
     }

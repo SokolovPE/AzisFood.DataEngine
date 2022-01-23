@@ -8,7 +8,7 @@ namespace AzisFood.DataEngine.ManualTest.Models.Mongo;
 /// <summary>
 ///     Model of product category
 /// </summary>
-[UseContext("catalog")]
+[ConnectionAlias("mongo_catalog")]
 public class Category : MongoRepoEntity
 {
     /// <summary>

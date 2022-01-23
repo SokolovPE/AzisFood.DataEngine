@@ -8,7 +8,7 @@ namespace AzisFood.DataEngine.Mongo.Tests.Models;
 /// <summary>
 ///     Fake entity for testing
 /// </summary>
-[UseContext("fake-connection")]
+[ConnectionAlias("fake-connection")]
 public class FakeEntity : MongoRepoEntity
 {
     public string StringField { get; set; } = null!;

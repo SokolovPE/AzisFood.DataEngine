@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AzisFood.DataEngine.ManualTest.Models.Postgres;
 
-[ConnectionSettings("postgres")]
+[ConnectionAlias("postgres")]
 public class PostgresDbContext : DbContext
 {
     public PostgresDbContext(DbContextOptions<PostgresDbContext> options) : base(options)

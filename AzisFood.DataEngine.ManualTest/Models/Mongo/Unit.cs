@@ -8,7 +8,7 @@ namespace AzisFood.DataEngine.ManualTest.Models.Mongo;
 /// <summary>
 ///     Measurement unit
 /// </summary>
-[UseContext("service")]
+[ConnectionAlias("mongo_service")]
 public class Unit : MongoRepoEntity
 {
     /// <summary>

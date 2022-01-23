@@ -127,16 +127,17 @@ public class MongoDataAccess : IDataAccess
         // If info is not presented in dictionary scan type and attribute
         var fullName = type.FullName;
 
-        var attribute = Attribute.GetCustomAttribute(type, typeof(UseContext)) as UseContext;
+        var attribute = Attribute.GetCustomAttribute(type, typeof(ConnectionAlias)) as ConnectionAlias;
         if (attribute == null)
             throw new ArgumentException(
-                $"Entity {fullName} has no {nameof(UseContext)} attribute. Entity is not supported");
+                $"Entity {fullName} has no {nameof(ConnectionAlias)} attribute. Entity is not supported");
 
         // Now let's find out which context is suitable
         try
         {
-            var connect = _configuration.Connections.First(con => con.Alias == attribute.ContextName);
-            var database = _databases.First(db => db.DatabaseNamespace.DatabaseName == connect.Database);
+            var connect = _configuration.Connections.First(con => con.Alias == attribute.Alias);
+            var database =
+                _databases.First(db => db.DatabaseNamespace.DatabaseName == connect.GetMongoUrl.DatabaseName);
             _entityDatabases.Add(type, database);
             return database;
         }
