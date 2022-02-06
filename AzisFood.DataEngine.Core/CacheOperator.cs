@@ -1,21 +1,19 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AzisFood.CacheService.Redis.Interfaces;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using Microsoft.Extensions.Logging;
-using StackExchange.Redis;
 
 namespace AzisFood.DataEngine.Core;
 
 public class CacheOperator<T> : ICacheOperator<T>
 {
-    private readonly IRedisCacheService _cacheService;
+    private readonly ICacheAdapter _cacheService;
     private readonly ILogger<CacheOperator<T>> _logger;
     private readonly string _repoEntityName;
     private readonly IBaseRepository<T> _repository;
 
-    public CacheOperator(IRedisCacheService cacheService, IBaseRepository<T> repository,
+    public CacheOperator(ICacheAdapter cacheService, IBaseRepository<T> repository,
         ILogger<CacheOperator<T>> logger)
     {
         _cacheService = cacheService;
@@ -30,13 +28,13 @@ public class CacheOperator<T> : ICacheOperator<T>
 
         if (asHash)
         {
-            await _cacheService.HashDropAsync<T>();
-            await _cacheService.HashSetAsync(items, CommandFlags.None);
+            await _cacheService.DropHashAsync<T>();
+            await _cacheService.StoreItemsAsHashAsync(items);
         }
         else
         {
-            await _cacheService.RemoveAsync(_repoEntityName);
-            var cacheSetResult = await _cacheService.SetAsync(_repoEntityName, items, expiry, CommandFlags.None);
+            await _cacheService.DropSingleKeyAsync<T>(_repoEntityName);
+            var cacheSetResult = await _cacheService.StoreItemsAsSingleKeyAsync(_repoEntityName, items, expiry);
             if (!cacheSetResult)
             {
                 _logger.LogWarning($"Unable to refresh {_repoEntityName} cache");

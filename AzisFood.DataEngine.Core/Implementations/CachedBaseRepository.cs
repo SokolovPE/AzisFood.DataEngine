@@ -4,14 +4,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using AzisFood.CacheService.Redis.Interfaces;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.MQ.Abstractions.Interfaces;
 using AzisFood.MQ.Abstractions.Models;
 using Microsoft.Extensions.Logging;
 using OpenTracing;
 using OpenTracing.Tag;
-using StackExchange.Redis;
 
 namespace AzisFood.DataEngine.Core.Implementations;
 
@@ -19,17 +17,17 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     where TRepoEntity : class, IRepoEntity, new()
 {
     private readonly IBaseRepository<TRepoEntity> _base;
-    private readonly IRedisCacheService _cacheService;
+    private readonly ICacheAdapter _cacheAdapter;
     private readonly ILogger<CachedBaseRepository<TRepoEntity>> _logger;
     private readonly IProducerService<TRepoEntity> _producerService;
     private readonly ITracer _tracer;
 
     public CachedBaseRepository(IBaseRepository<TRepoEntity> @base, ILogger<CachedBaseRepository<TRepoEntity>> logger,
-        IRedisCacheService cacheService,
+        ICacheAdapter cacheAdapter,
         ITracer tracer, IProducerService<TRepoEntity> producerService)
     {
         _logger = logger;
-        _cacheService = cacheService;
+        _cacheAdapter = cacheAdapter;
         _tracer = tracer;
         _producerService = producerService;
         _base = @base;
@@ -190,8 +188,8 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         {
             token.ThrowIfCancellationRequested();
             var redisResult = hashMode
-                ? await _cacheService.HashGetAllAsync<TRepoEntity>(CommandFlags.None)
-                : await _cacheService.GetAsync<List<TRepoEntity>>(RepoEntityName);
+                ? await _cacheAdapter.GetCollectionFromHashAsync<TRepoEntity>()
+                : await _cacheAdapter.GetFromSingleKeyAsync<TRepoEntity>(RepoEntityName);
 
             if (redisResult != null)
             {
@@ -247,8 +245,8 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         {
             token.ThrowIfCancellationRequested();
             var redisResult = hashMode
-                ? await _cacheService.HashGetAllAsync<TRepoEntity>(CommandFlags.None)
-                : await _cacheService.GetAsync<List<TRepoEntity>>(RepoEntityName);
+                ? await _cacheAdapter.GetCollectionFromHashAsync<TRepoEntity>()
+                : await _cacheAdapter.GetFromSingleKeyAsync<TRepoEntity>(RepoEntityName);
 
             if (redisResult != null)
             {
@@ -303,9 +301,8 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         try
         {
             var redisResult = hashMode
-                ? await _cacheService.HashGetAsync<TRepoEntity>(id.ToString(), CommandFlags.None)
-                : (await _cacheService.GetAsync<List<TRepoEntity>>(RepoEntityName))?.FirstOrDefault(
-                    x => x.Id == id);
+                ? await _cacheAdapter.GetSingleFromHashAsync<TRepoEntity>(id)
+                : await _cacheAdapter.GetFromSingleKeyAsync<TRepoEntity>(RepoEntityName, id);
 
             if (redisResult != null)
             {

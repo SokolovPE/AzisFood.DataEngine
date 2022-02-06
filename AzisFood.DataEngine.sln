@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzisFood.DataEngine.ManualT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzisFood.DataEngine.Core", "AzisFood.DataEngine.Core\AzisFood.DataEngine.Core.csproj", "{1E912DF6-BECA-445F-AC19-8E849CE0515A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzisFood.DataEngine.Cache.CacheService", "AzisFood.DataEngine.Cache.CacheService\AzisFood.DataEngine.Cache.CacheService.csproj", "{505EAA26-8D84-4BDF-8707-3DA19D875D44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeCacheAdapters", "NativeCacheAdapters", "{DD882760-A6B1-4617-8B9F-C1017781405D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +46,12 @@ Global
 		{1E912DF6-BECA-445F-AC19-8E849CE0515A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E912DF6-BECA-445F-AC19-8E849CE0515A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E912DF6-BECA-445F-AC19-8E849CE0515A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{505EAA26-8D84-4BDF-8707-3DA19D875D44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{505EAA26-8D84-4BDF-8707-3DA19D875D44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{505EAA26-8D84-4BDF-8707-3DA19D875D44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{505EAA26-8D84-4BDF-8707-3DA19D875D44}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{505EAA26-8D84-4BDF-8707-3DA19D875D44} = {DD882760-A6B1-4617-8B9F-C1017781405D}
 	EndGlobalSection
 EndGlobal
