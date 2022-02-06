@@ -34,7 +34,7 @@ public static class InitExtensions
                     if (aliasAttribute == null)
                         throw new ArgumentException(
                             $"Context {contextType.FullName} has no {nameof(ConnectionAlias)} attribute. Context is not supported");
-                    
+
                     var config = configs.Connections.First(con =>
                         string.Equals(con.Alias, aliasAttribute.Alias, StringComparison.InvariantCultureIgnoreCase));
                     options.UseNpgsql(config.ConnectionString);

@@ -9,7 +9,7 @@ public class PgConfiguration
     ///     Automatically register all configured connections
     /// </summary>
     public bool AutoRegistration { get; set; } = true;
-    
+
     /// <summary>
     ///     Connection configurations
     /// </summary>

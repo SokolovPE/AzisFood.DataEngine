@@ -44,7 +44,7 @@ public static class InitExtensions
                 var configs = provider.GetRequiredService<MongoConfiguration>();
                 var config = configs.Connections.First(con =>
                     string.Equals(con.Alias, connectionAlias, StringComparison.InvariantCultureIgnoreCase));
-                
+
                 return new MongoClient(config.ConnectionString).GetDatabase(config.GetMongoUrl.DatabaseName);
             }
             catch (InvalidOperationException e)

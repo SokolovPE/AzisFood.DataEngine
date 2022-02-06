@@ -1,6 +1,5 @@
 using System.Text.Json;
 using AzisFood.DataEngine.Abstractions.Interfaces;
-using AzisFood.DataEngine.ManualTest.Models.Postgres;
 using AzisFood.DataEngine.Mongo.Extensions;
 using AzisFood.DataEngine.Postgres.Extensions;
 using MongoCategory = AzisFood.DataEngine.ManualTest.Models.Mongo.Category;

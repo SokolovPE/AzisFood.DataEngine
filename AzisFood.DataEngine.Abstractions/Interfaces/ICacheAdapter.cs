@@ -25,14 +25,16 @@ public interface ICacheAdapter
     ///     Get collection of elements from collection stored in single key
     /// </summary>
     /// <param name="entityName">Name of entity</param>
-    Task<IEnumerable<TEntity>> GetFromSingleKeyAsync<TEntity>(string entityName) where TEntity : class, IRepoEntity, new();
+    Task<IEnumerable<TEntity>> GetFromSingleKeyAsync<TEntity>(string entityName)
+        where TEntity : class, IRepoEntity, new();
 
     /// <summary>
     ///     Get single element from collection stored in single key
     /// </summary>
     /// <param name="entityName">Name of entity</param>
     /// <param name="key">Entity key</param>
-    Task<TEntity?> GetFromSingleKeyAsync<TEntity>(string entityName, Guid key) where TEntity : class, IRepoEntity, new();
+    Task<TEntity?> GetFromSingleKeyAsync<TEntity>(string entityName, Guid key)
+        where TEntity : class, IRepoEntity, new();
 
     /// <summary>
     ///     Drop hashset of given entity

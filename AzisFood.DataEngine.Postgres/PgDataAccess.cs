@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
-using AzisFood.DataEngine.Core.Attributes;
 using AzisFood.DataEngine.Core.Extensions;
 using AzisFood.DataEngine.Postgres.Models;
 using Microsoft.EntityFrameworkCore;
