@@ -109,9 +109,9 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         try
         {
             token.ThrowIfCancellationRequested();
-            await DataAccess().CreateAsync(item, token);
+            var created = await DataAccess().CreateAsync(item, token);
             _logger.LogInformation($"Requested creation of {RepoEntityName} succeeded");
-            return item;
+            return created;
         }
         catch (OperationCanceledException)
         {

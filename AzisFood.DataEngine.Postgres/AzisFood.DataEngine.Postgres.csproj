@@ -5,15 +5,12 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Mongo</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.10</PackageVersion>
+        <PackageVersion>1.1.0.12</PackageVersion>
         <Authors>AzisFood</Authors>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AzisFood.CacheService.Abstractions" Version="1.0.0.1"/>
-        <PackageReference Include="AzisFood.CacheService.Redis" Version="1.0.0.5"/>
-        <PackageReference Include="AzisFood.MQ.Rabbit" Version="1.0.1.2"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.1">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -23,7 +20,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0"/>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.2"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" Version="1.1.0"/>
     </ItemGroup>
 

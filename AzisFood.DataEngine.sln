@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzisFood.DataEngine.Cache.C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeCacheAdapters", "NativeCacheAdapters", "{DD882760-A6B1-4617-8B9F-C1017781405D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeCacheEventHandlers", "NativeCacheEventHandlers", "{02E7774E-A96E-4495-A43A-2F144532A838}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzisFood.DataEngine.MQ.Rabbit", "AzisFood.DataEngine.MQ.Rabbit\AzisFood.DataEngine.MQ.Rabbit.csproj", "{C0FBDD07-7223-49F5-8CA5-E16240E1F08C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,8 +54,13 @@ Global
 		{505EAA26-8D84-4BDF-8707-3DA19D875D44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{505EAA26-8D84-4BDF-8707-3DA19D875D44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{505EAA26-8D84-4BDF-8707-3DA19D875D44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0FBDD07-7223-49F5-8CA5-E16240E1F08C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0FBDD07-7223-49F5-8CA5-E16240E1F08C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0FBDD07-7223-49F5-8CA5-E16240E1F08C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0FBDD07-7223-49F5-8CA5-E16240E1F08C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{505EAA26-8D84-4BDF-8707-3DA19D875D44} = {DD882760-A6B1-4617-8B9F-C1017781405D}
+		{C0FBDD07-7223-49F5-8CA5-E16240E1F08C} = {02E7774E-A96E-4495-A43A-2F144532A838}
 	EndGlobalSection
 EndGlobal

@@ -1,5 +1,4 @@
 ﻿using System;
-using AzisFood.CacheService.Abstractions.Models;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
 using AzisFood.DataEngine.Core.Attributes;
@@ -17,6 +16,5 @@ public abstract class MongoRepoEntity : IRepoEntity
     /// <summary>
     ///     Identifier
     /// </summary>
-    [HashEntryKey]
     public Guid Id { get; set; }
 }

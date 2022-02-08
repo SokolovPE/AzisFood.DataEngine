@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
-using AzisFood.MQ.Abstractions.Interfaces;
-using AzisFood.MQ.Abstractions.Models;
 using Microsoft.Extensions.Logging;
 using OpenTracing;
 using OpenTracing.Tag;
@@ -18,18 +16,18 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 {
     private readonly IBaseRepository<TRepoEntity> _base;
     private readonly ICacheAdapter _cacheAdapter;
+    private readonly ICacheEventHandler<TRepoEntity> _eventHandler;
     private readonly ILogger<CachedBaseRepository<TRepoEntity>> _logger;
-    private readonly IProducerService<TRepoEntity> _producerService;
     private readonly ITracer _tracer;
 
     public CachedBaseRepository(IBaseRepository<TRepoEntity> @base, ILogger<CachedBaseRepository<TRepoEntity>> logger,
         ICacheAdapter cacheAdapter,
-        ITracer tracer, IProducerService<TRepoEntity> producerService)
+        ITracer tracer, ICacheEventHandler<TRepoEntity> eventHandler)
     {
         _logger = logger;
         _cacheAdapter = cacheAdapter;
         _tracer = tracer;
-        _producerService = producerService;
+        _eventHandler = eventHandler;
         _base = @base;
         RepoEntityName = _base.RepoEntityName;
     }
@@ -75,10 +73,10 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         {
             var insertSpan = _tracer.BuildSpan("insertion").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
                 .Start();
-            await _base.CreateAsync(item, token);
+            var created = await _base.CreateAsync(item, token);
             insertSpan.Finish();
-            await _producerService.SendEvent(token: token);
-            return item;
+            await _eventHandler.NotifyCreate(created, token);
+            return created;
         }
         finally
         {
@@ -95,7 +93,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
                 .Start();
             await _base.UpdateAsync(id, itemIn, token);
             replaceSpan.Finish();
-            await _producerService.SendEvent(token: token);
+            await _eventHandler.NotifyUpdate(id, itemIn, token);
         }
         finally
         {
@@ -112,7 +110,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
                 .Start();
             await _base.RemoveAsync(itemIn, token);
             deleteSpan.Finish();
-            await _producerService.SendEvent(token: token);
+            await _eventHandler.NotifyRemove(itemIn.Id, token);
         }
         finally
         {
@@ -129,7 +127,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
                 .Start();
             await _base.RemoveAsync(id, token);
             deleteSpan.Finish();
-            await _producerService.SendEvent(eventType: EventType.Deleted, payload: id, token: token);
+            await _eventHandler.NotifyRemove(id, token);
         }
         finally
         {
@@ -147,7 +145,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
                 .Start();
             await _base.RemoveAsync(filter, token);
             deleteSpan.Finish();
-            await _producerService.SendEvent(eventType: EventType.Deleted, token: token);
+            await _eventHandler.NotifyRemove(token);
         }
         finally
         {
@@ -164,9 +162,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
                 .Start();
             await _base.RemoveManyAsync(ids, token);
             deleteSpan.Finish();
-            await _producerService.SendEvent(token: token);
-            // TODO: On deletion no need fully recache - just remove hash entry!
-            await _producerService.SendEvent(eventType: EventType.Deleted, payload: ids, token: token);
+            await _eventHandler.NotifyRemove(ids, token);
         }
         finally
         {
@@ -207,7 +203,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
                 .AsChildOf(mainSpan.Span).Start();
             var dbResult = await _base.GetAsync(token);
             dbSpan.Finish();
-            await _producerService.SendEvent(token: token);
+            await _eventHandler.NotifyMissing(token);
 
             var repoEntities = dbResult as TRepoEntity[] ?? dbResult.ToArray();
             _logger.LogInformation($"Request of all {RepoEntityName} items returned {repoEntities.Length} items");
@@ -264,7 +260,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
                 .AsChildOf(mainSpan.Span).Start();
             var dbResult = await _base.GetAsync(filter, token);
             dbSpan.Finish();
-            await _producerService.SendEvent(token: token);
+            await _eventHandler.NotifyMissing(token);
 
             var repoEntities = dbResult as TRepoEntity[] ?? dbResult.ToArray();
             _logger.LogInformation(
@@ -315,7 +311,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
                 .AsChildOf(mainSpan.Span).Start();
             var dbResult = await _base.GetAsync(id, token);
             dbSpan.Finish();
-            await _producerService.SendEvent(token: token);
+            await _eventHandler.NotifyMissing(id, token);
             _logger.LogInformation($"Request of {RepoEntityName} with id: {id} succeeded");
             return dbResult;
         }
