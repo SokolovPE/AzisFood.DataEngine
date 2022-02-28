@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
 using AzisFood.DataEngine.Core.Extensions;
+using AzisFood.DataEngine.Postgres.Extensions;
 using AzisFood.DataEngine.Postgres.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,12 +17,12 @@ namespace AzisFood.DataEngine.Postgres;
 /// <inheritdoc />
 public class PgDataAccess : IDataAccess
 {
-    private readonly IEnumerable<DbContext> _contexts;
     private readonly Dictionary<Type, DbContext> _entityContexts;
+    private readonly IServiceProvider _provider;
 
-    public PgDataAccess(IEnumerable<DbContext> contexts)
+    public PgDataAccess(IServiceProvider provider)
     {
-        _contexts = contexts;
+        _provider = provider;
         _entityContexts = new Dictionary<Type, DbContext>();
     }
 
@@ -131,7 +132,8 @@ public class PgDataAccess : IDataAccess
         // Now let's find out which context is suitable
         try
         {
-            var context = _contexts.First(ctx => ctx.GetType().Name == contextType.Name);
+            var context = CreateDbContext(contextType);
+            if (context == null) throw new Exception($"Cannot create suitable dbContext for type {contextType.Name}");
             _entityContexts.Add(type, context);
             return context;
         }
@@ -141,5 +143,28 @@ public class PgDataAccess : IDataAccess
                 $"There's no context suitable for {fullName}. Verify that at least one registered context " +
                 "has a set for this entity", e);
         }
+    }
+
+    /// <summary>
+    ///     Create db context by DbContextFactory
+    /// </summary>
+    /// <param name="contextType">Type of context to be created</param>
+    /// <returns>Context instance</returns>
+    private DbContext? CreateDbContext(Type contextType)
+    {
+        // Invoke generic method by reflection to get factory
+        var dbContextFactory = typeof(InitExtensions)
+            .GetMethod("GetDbContextFactory")
+            ?.MakeGenericMethod(contextType)
+            .Invoke(null, new object[]
+            {
+                _provider
+            });
+
+        // Invoke "CreateDbContext" method to get instance of dbContext
+        var dbContext = dbContextFactory?.GetType().GetMethod("CreateDbContext")
+            ?.Invoke(dbContextFactory, Array.Empty<object>());
+
+        return dbContext as DbContext;
     }
 }

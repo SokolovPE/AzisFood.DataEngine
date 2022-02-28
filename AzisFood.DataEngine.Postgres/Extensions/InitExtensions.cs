@@ -15,6 +15,15 @@ namespace AzisFood.DataEngine.Postgres.Extensions;
 public static class InitExtensions
 {
     /// <summary>
+    ///     Get registered DbContextFactory for given context
+    /// </summary>
+    public static IDbContextFactory<TContext> GetDbContextFactory<TContext>(this IServiceProvider serviceProvider)
+        where TContext : DbContext
+    {
+        return serviceProvider.GetService<IDbContextFactory<TContext>>();
+    }
+
+    /// <summary>
     ///     Add postgres database context
     ///     Use if auto context registration is disabled
     /// </summary>
@@ -46,8 +55,7 @@ public static class InitExtensions
                         " context is configured in application settings",
                         e);
                 }
-            })
-            .AddTransient<DbContext, TContext>();
+            });
     }
 
     /// <summary>
