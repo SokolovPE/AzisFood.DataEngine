@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core;
 using AzisFood.DataEngine.Core.Extensions;
-using AzisFood.DataEngine.Postgres.Extensions;
-using AzisFood.DataEngine.Postgres.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AzisFood.DataEngine.Postgres;
@@ -17,13 +15,12 @@ namespace AzisFood.DataEngine.Postgres;
 /// <inheritdoc />
 public class PgDataAccess : IDataAccess
 {
-    private readonly Dictionary<Type, DbContext> _entityContexts;
-    private readonly IServiceProvider _provider;
-
-    public PgDataAccess(IServiceProvider provider)
+    // private readonly Dictionary<Type, DbContext> _entityContexts;
+    private readonly IServiceProvider _serviceProvider;
+    public PgDataAccess(IServiceProvider serviceProvider)
     {
-        _provider = provider;
-        _entityContexts = new Dictionary<Type, DbContext>();
+        _serviceProvider = serviceProvider;
+        // _entityContexts = new Dictionary<Type, DbContext>();
     }
 
     /// <inheritdoc />
@@ -112,59 +109,15 @@ public class PgDataAccess : IDataAccess
     ///     Get entity context for given type
     /// </summary>
     /// <typeparam name="TRepoEntity">Entity type</typeparam>
-    /// <exception cref="ArgumentException">If entity contains no required attribute exception will be thrown</exception>
     private DbContext Context<TRepoEntity>() where TRepoEntity : class, IRepoEntity
     {
-        var type = typeof(TRepoEntity);
-
-        // First - check dictionary to avoid reflection
-        if (_entityContexts.ContainsKey(type)) return _entityContexts[type];
-
-        // If info is not presented in dictionary scan type and attribute
-        var fullName = type.FullName;
-
-        var contextType = type.BaseType?.GetGenericArguments().FirstOrDefault();
-        if (contextType == default)
-            throw new ArgumentException(
-                $"Entity {fullName} has no specified DbContext. " +
-                $"Specify it via generic parameter of {nameof(PgRepoEntity<DbContext>)}");
-
-        // Now let's find out which context is suitable
         try
         {
-            var context = CreateDbContext(contextType);
-            if (context == null) throw new Exception($"Cannot create suitable dbContext for type {contextType.Name}");
-            _entityContexts.Add(type, context);
-            return context;
+            return DbContextAccess.Create<TRepoEntity>(_serviceProvider);
         }
-        catch (InvalidOperationException e)
+        catch (Exception e)
         {
-            throw new ArgumentException(
-                $"There's no context suitable for {fullName}. Verify that at least one registered context " +
-                "has a set for this entity", e);
+            throw new Exception($"Cannot create suitable dbContext for type {typeof(TRepoEntity).Name}", e);
         }
-    }
-
-    /// <summary>
-    ///     Create db context by DbContextFactory
-    /// </summary>
-    /// <param name="contextType">Type of context to be created</param>
-    /// <returns>Context instance</returns>
-    private DbContext? CreateDbContext(Type contextType)
-    {
-        // Invoke generic method by reflection to get factory
-        var dbContextFactory = typeof(InitExtensions)
-            .GetMethod("GetDbContextFactory")
-            ?.MakeGenericMethod(contextType)
-            .Invoke(null, new object[]
-            {
-                _provider
-            });
-
-        // Invoke "CreateDbContext" method to get instance of dbContext
-        var dbContext = dbContextFactory?.GetType().GetMethod("CreateDbContext")
-            ?.Invoke(dbContextFactory, Array.Empty<object>());
-
-        return dbContext as DbContext;
     }
 }
