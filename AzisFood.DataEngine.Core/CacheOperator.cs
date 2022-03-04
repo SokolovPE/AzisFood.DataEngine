@@ -24,24 +24,31 @@ public class CacheOperator<T> : ICacheOperator<T>
 
     public async Task FullRecache(TimeSpan expiry, bool asHash = true)
     {
-        var items = (await _repository.GetAsync()).ToList();
+        try
+        {
+            var items = (await _repository.GetAsync()).ToList();
 
-        if (asHash)
-        {
-            await _cacheService.DropHashAsync<T>();
-            await _cacheService.StoreItemsAsHashAsync(items);
-        }
-        else
-        {
-            await _cacheService.DropSingleKeyAsync<T>(_repoEntityName);
-            var cacheSetResult = await _cacheService.StoreItemsAsSingleKeyAsync(_repoEntityName, items, expiry);
-            if (!cacheSetResult)
+            if (asHash)
             {
-                _logger.LogWarning($"Unable to refresh {_repoEntityName} cache");
-                throw new Exception($"Unable to refresh {_repoEntityName} cache");
+                await _cacheService.DropHashAsync<T>();
+                await _cacheService.StoreItemsAsHashAsync(items);
             }
-        }
+            else
+            {
+                await _cacheService.DropSingleKeyAsync<T>(_repoEntityName);
+                var cacheSetResult = await _cacheService.StoreItemsAsSingleKeyAsync(_repoEntityName, items, expiry);
+                if (!cacheSetResult)
+                {
+                    _logger.LogWarning($"Unable to refresh {_repoEntityName} cache");
+                    throw new Exception($"Unable to refresh {_repoEntityName} cache");
+                }
+            }
 
-        _logger.LogInformation($"Successfully refreshed {_repoEntityName} cache");
+            _logger.LogInformation($"Successfully refreshed {_repoEntityName} cache");
+        }
+        catch (Exception e)
+        {
+            _logger.LogInformation(e, $"Error during recache {_repoEntityName} entity");
+        }
     }
 }

@@ -183,19 +183,25 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         try
         {
             token.ThrowIfCancellationRequested();
+            var redisSpan = _tracer.BuildSpan("mongo-cached-repo.get.cache").Start();
             var redisResult = hashMode
                 ? await _cacheAdapter.GetCollectionFromHashAsync<TRepoEntity>()
                 : await _cacheAdapter.GetFromSingleKeyAsync<TRepoEntity>(RepoEntityName);
-
+            redisSpan.Finish();
             if (redisResult != null)
             {
+                var resultSpan = _tracer.BuildSpan("mongo-cached-repo.result.cache").AsChildOf(mainSpan.Span).Start();
+                var conversionSpan = _tracer.BuildSpan("mongo-cached-repo.get-all-conversion.cache").AsChildOf(resultSpan).Start();
                 var mongoRepoEntities = redisResult.ToArray();
-                if (mongoRepoEntities.Length > 0)
+                conversionSpan.Finish();
+                if (mongoRepoEntities .Length > 0)
                 {
                     _logger.LogInformation(
                         $"Request of all {RepoEntityName} items returned {mongoRepoEntities.Length} items");
+                    resultSpan.Finish();
                     return mongoRepoEntities;
                 }
+                resultSpan.Finish();
             }
 
             _logger.LogWarning($"Items of type {RepoEntityName} are not presented in cache");
