@@ -76,6 +76,7 @@ public static class InitExtensions
             .Configure<PgConfiguration>(pgConfig)
             .AddSingleton(sp => sp.GetRequiredService<IOptions<PgConfiguration>>().Value)
             .AddSingleton<IDataAccess, PgDataAccess>()
+            .AddSingleton<IQueryableDataAccess, PgQueryableDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
             .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))
             .AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));
