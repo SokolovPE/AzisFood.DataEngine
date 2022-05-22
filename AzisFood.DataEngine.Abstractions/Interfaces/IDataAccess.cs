@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,13 @@ public interface IDataAccess
     /// <returns>Items collection</returns>
     Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity;
+    
+    /// <summary>
+    ///     Get all entities as queryable
+    /// </summary>
+    /// <returns>Items collection</returns>
+    IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>()
+        where TRepoEntity : class, IRepoEntity;
 
     /// <summary>
     ///     Get single item
@@ -43,6 +51,14 @@ public interface IDataAccess
     Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
         CancellationToken token = default) where TRepoEntity : class, IRepoEntity;
 
+    /// <summary>
+    ///     Get filtered items
+    /// </summary>
+    /// <param name="filter">Filter expression</param>
+    /// <returns>Filtered items</returns>
+    IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter)
+        where TRepoEntity : class, IRepoEntity;
+    
     /// <summary>
     ///     Create new item
     /// </summary>

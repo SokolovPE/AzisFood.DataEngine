@@ -46,6 +46,15 @@ public class MongoDataAccess : IDataAccess
             .ToEnumerable(token);
     }
 
+
+    /// <summary>
+    ///     Not implemented
+    /// </summary>
+    public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>() where TRepoEntity : class, IRepoEntity
+    {
+        throw new NotImplementedException();
+    }
+
     /// <inheritdoc />
     public async Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
@@ -60,6 +69,15 @@ public class MongoDataAccess : IDataAccess
     {
         return await (await Collection<TRepoEntity>().FindAsync(filter, cancellationToken: token))
             .ToListAsync(token);
+    }
+
+    /// <summary>
+    ///     Not implemented
+    /// </summary>
+    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter)
+        where TRepoEntity : class, IRepoEntity
+    {
+        throw new NotImplementedException();
     }
 
     /// <inheritdoc />

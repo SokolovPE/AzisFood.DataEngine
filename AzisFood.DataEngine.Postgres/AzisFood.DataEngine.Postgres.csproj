@@ -5,7 +5,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Mongo</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.21</PackageVersion>
+        <PackageVersion>1.1.0.30-pre</PackageVersion>
         <Authors>AzisFood</Authors>
     </PropertyGroup>
 

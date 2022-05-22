@@ -34,6 +34,12 @@ public class PgDataAccess : IDataAccess
     }
 
     /// <inheritdoc />
+    public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>() where TRepoEntity : class, IRepoEntity
+    {
+        return Collection<TRepoEntity>().AsNoTracking();
+    }
+
+    /// <inheritdoc />
     public async Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
     {
@@ -47,6 +53,12 @@ public class PgDataAccess : IDataAccess
         return await Collection<TRepoEntity>().AsQueryable().Where(filter).ToListAsync(token);
     }
 
+    /// <inheritdoc />
+    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter)
+        where TRepoEntity : class, IRepoEntity
+    {
+        return Collection<TRepoEntity>().AsQueryable().Where(filter);
+    }
 
     /// <inheritdoc />
     public async Task<TRepoEntity> CreateAsync<TRepoEntity>(TRepoEntity item, CancellationToken token = default)

@@ -54,6 +54,29 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
     }
 
+    /// <inheritdoc />
+    public IQueryable<TRepoEntity> GetQueryable()
+    {
+        _logger.LogInformation($"Requested all {RepoEntityName} items as queryable");
+        try
+        {
+            var repoQueryable = DataAccess().GetAllQueryable<TRepoEntity>();
+            _logger.LogInformation(
+                $"Request of all {RepoEntityName} items as queryable succeeded");
+            return repoQueryable;
+        }
+        catch (OperationCanceledException)
+        {
+            // Throw cancelled operation, do not catch
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"There was an error during attempt to return all {RepoEntityName} items as queryable");
+            return default;
+        }
+    }
+
     public async Task<TRepoEntity> GetAsync(Guid id, CancellationToken token = default)
     {
         _logger.LogInformation($"Requested {RepoEntityName} with id: {id}");
@@ -99,6 +122,30 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         {
             _logger.LogError(ex,
                 $"There was an error during attempt to return {RepoEntityName} items with filter {filter}");
+            return default;
+        }
+    }
+
+    /// <inheritdoc />
+    public IQueryable<TRepoEntity> GetQueryable(Expression<Func<TRepoEntity, bool>> filter)
+    {
+        _logger.LogInformation($"Requested filtered {RepoEntityName} items as queryable, filter: {filter}");
+        try
+        {
+            var repoEntities = DataAccess().GetQueryable(filter);
+            _logger.LogInformation(
+                $"Request of filtered {RepoEntityName} items as querbale succeeded, filter: {filter}");
+            return repoEntities;
+        }
+        catch (OperationCanceledException)
+        {
+            // Throw cancelled operation, do not catch
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                $"There was an error during attempt to return {RepoEntityName} items as querbale with filter {filter}");
             return default;
         }
     }

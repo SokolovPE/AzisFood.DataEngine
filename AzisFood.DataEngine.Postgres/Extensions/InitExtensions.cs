@@ -78,6 +78,7 @@ public static class InitExtensions
             .AddSingleton<IDataAccess, PgDataAccess>()
             .AddSingleton<IQueryableDataAccess, PgQueryableDataAccess>()
             .AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>))
+            .AddTransient(typeof(IBaseQueryableRepository<>), typeof(BaseQueryableRepository<>))
             .AddTransient(typeof(ICachedBaseRepository<>), typeof(CachedBaseRepository<>))
             .AddTransient(typeof(ICacheOperator<>), typeof(CacheOperator<>));
     }

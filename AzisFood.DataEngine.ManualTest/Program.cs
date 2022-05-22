@@ -2,6 +2,7 @@ using System.Text.Json;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Mongo.Extensions;
 using AzisFood.DataEngine.Postgres.Extensions;
+using Microsoft.EntityFrameworkCore;
 using MongoCategory = AzisFood.DataEngine.ManualTest.Models.Mongo.Category;
 using MongoUnit = AzisFood.DataEngine.ManualTest.Models.Mongo.Unit;
 using PostgresCategory = AzisFood.DataEngine.ManualTest.Models.Postgres.Category;
@@ -43,11 +44,12 @@ app.MapGet("/pg", async () =>
         {OrderDate = DateTime.Now.ToUniversalTime(), Price = 100.55m, Qty = 2});
     var orders = await repoOrder.GetAsync();
 
-    var repoCategory = app.Services.GetRequiredService<IBaseRepository<PostgresCategory>>();
-    await repoCategory.CreateAsync(new PostgresCategory {Order = 1, Title = "awfawf"});
-    var categories = await repoCategory.GetAsync();
+    var repoCategory = app.Services.GetRequiredService<IBaseQueryableRepository<PostgresCategory>>();
+    //await repoCategory.CreateAsync(new PostgresCategory {Order = 1, Title = "awfawf"});
+    var categories = repoCategory.GetQueryable();
+    var list = await categories.ToListAsync();
 
-    var result = new {Orders = orders, Categories = categories};
+    var result = new {Orders = orders, Categories = list};
     return JsonSerializer.Serialize(result);
 });
 
