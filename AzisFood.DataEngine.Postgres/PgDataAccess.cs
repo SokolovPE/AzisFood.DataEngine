@@ -36,7 +36,7 @@ public class PgDataAccess : IDataAccess
     /// <inheritdoc />
     public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>() where TRepoEntity : class, IRepoEntity
     {
-        return Collection<TRepoEntity>().AsNoTracking();
+        return Collection<TRepoEntity>().AsQueryable();
     }
 
     /// <inheritdoc />
