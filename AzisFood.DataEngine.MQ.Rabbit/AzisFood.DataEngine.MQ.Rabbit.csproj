@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.MQ.Rabbit</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.12</PackageVersion>
+        <PackageVersion>1.1.0.14</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

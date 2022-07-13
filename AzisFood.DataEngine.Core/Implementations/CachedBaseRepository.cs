@@ -33,36 +33,36 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
     public string RepoEntityName { get; init; }
 
-    public async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default)
+    public async Task<IEnumerable<TRepoEntity>> GetAsync(bool track = false, CancellationToken token = default)
     {
-        return await Get(false, token);
+        return await Get(false, track, token);
     }
 
-    public async Task<TRepoEntity> GetAsync(Guid id, CancellationToken token = default)
+    public async Task<TRepoEntity> GetAsync(Guid id, bool track = false, CancellationToken token = default)
     {
-        return await Get(id, false, token);
+        return await Get(id, false, track, token);
     }
 
     public async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
-        CancellationToken token = default)
+        bool track = false, CancellationToken token = default)
     {
-        return await GetFiltered(filter, false, token);
+        return await GetFiltered(filter, false, track, token);
     }
 
-    public async Task<IEnumerable<TRepoEntity>> GetHashAsync(CancellationToken token = default)
+    public async Task<IEnumerable<TRepoEntity>> GetHashAsync(bool track = false, CancellationToken token = default)
     {
-        return await Get(token: token);
+        return await Get(track, token: token);
     }
 
-    public async Task<TRepoEntity> GetHashAsync(Guid id, CancellationToken token = default)
+    public async Task<TRepoEntity> GetHashAsync(Guid id, bool track = false, CancellationToken token = default)
     {
-        return await Get(id, token: token);
+        return await Get(id, track, token: token);
     }
 
     public async Task<IEnumerable<TRepoEntity>> GetHashAsync(Expression<Func<TRepoEntity, bool>> filter,
-        CancellationToken token = default)
+        bool track = false, CancellationToken token = default)
     {
-        return await GetFiltered(filter, token: token);
+        return await GetFiltered(filter, track, token: token);
     }
 
     public async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
@@ -173,9 +173,10 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     ///     Get items from cache
     /// </summary>
     /// <param name="hashMode">Get from HashSet</param>
+    /// <param name="track">Should entity be tracked</param>
     /// <param name="token">Token for operation cancel</param>
     /// <returns>Entries of entity</returns>
-    private async Task<IEnumerable<TRepoEntity>> Get(bool hashMode = true, CancellationToken token = default)
+    private async Task<IEnumerable<TRepoEntity>> Get(bool hashMode = true, bool track = false, CancellationToken token = default)
     {
         _logger.LogInformation("Requested all {RepoEntityName} items", RepoEntityName);
         var mainSpan = _tracer.BuildSpan("cached-repo.get-all").StartActive();
@@ -206,7 +207,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
             _logger.LogWarning("Items of type {RepoEntityName} are not presented in cache", RepoEntityName);
             var dbSpan = _tracer.BuildSpan("cached-repo.get.db")
                 .AsChildOf(mainSpan.Span).Start();
-            var dbResult = await _base.GetAsync(token);
+            var dbResult = await _base.GetAsync(track, token);
             dbSpan.Finish();
             await _eventHandler.NotifyMissing(token);
 
@@ -235,10 +236,11 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     /// </summary>
     /// <param name="hashMode">Get from HashSet</param>
     /// <param name="filter">Condition to filter</param>
+    /// <param name="track">Should entity be tracked</param>
     /// <param name="token">Token for operation cancel</param>
     /// <returns>Entries of entity</returns>
     private async Task<IEnumerable<TRepoEntity>> GetFiltered(Expression<Func<TRepoEntity, bool>> filter,
-        bool hashMode = true, CancellationToken token = default)
+        bool hashMode = true, bool track = false, CancellationToken token = default)
     {
         _logger.LogInformation("Requested filtered {RepoEntityName} items, filter: {@Filter}", RepoEntityName, filter);
         var mainSpan = _tracer.BuildSpan("cached-repo.get-filtered").StartActive();
@@ -264,7 +266,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
             _logger.LogWarning("Items of type {RepoEntityName} are not presented in cache", RepoEntityName);
             var dbSpan = _tracer.BuildSpan("cached-repo.get-filtered.db")
                 .AsChildOf(mainSpan.Span).Start();
-            var dbResult = await _base.GetAsync(filter, token);
+            var dbResult = await _base.GetAsync(filter, track, token);
             dbSpan.Finish();
             await _eventHandler.NotifyMissing(token);
 
@@ -297,9 +299,10 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     /// </summary>
     /// <param name="id">Identifier of entry</param>
     /// <param name="hashMode">Get from HashSet</param>
+    /// <param name="track">Should entity be tracked</param>
     /// <param name="token">Token for operation cancel</param>
     /// <returns>Entry of entity</returns>
-    private async Task<TRepoEntity> Get(Guid id, bool hashMode = true, CancellationToken token = default)
+    private async Task<TRepoEntity> Get(Guid id, bool hashMode = true, bool track = false, CancellationToken token = default)
     {
         var mainSpan = _tracer.BuildSpan("cached-repo.get").StartActive();
         try
@@ -317,7 +320,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
             _logger.LogWarning("Item of type {RepoEntityName}  with id: {Id} is not presented in cache", RepoEntityName, id);
             var dbSpan = _tracer.BuildSpan("cached-repo.get.db")
                 .AsChildOf(mainSpan.Span).Start();
-            var dbResult = await _base.GetAsync(id, token);
+            var dbResult = await _base.GetAsync(id, track, token);
             dbSpan.Finish();
             await _eventHandler.NotifyMissing(id, token);
             _logger.LogInformation("Request of {RepoEntityName} with id: {Id} succeeded", RepoEntityName, id);

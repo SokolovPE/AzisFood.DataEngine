@@ -21,10 +21,10 @@ app.MapGet("/", () => "Hello World!");
 app.MapGet("/mongo", async () =>
 {
     var unitRepo = app.Services.GetRequiredService<IBaseRepository<MongoUnit>>();
-    var units = await unitRepo.GetAsync();
+    var units = await unitRepo.GetAsync(false);
 
     var categoryRepo = app.Services.GetRequiredService<IBaseRepository<MongoCategory>>();
-    var categories = await categoryRepo.GetAsync();
+    var categories = await categoryRepo.GetAsync(false);
 
     var result = new {Units = units, Categories = categories};
     return JsonSerializer.Serialize(result);
@@ -42,11 +42,11 @@ app.MapGet("/pg", async () =>
     var repoOrder = app.Services.GetRequiredService<IBaseRepository<PostgresOrder>>();
     await repoOrder.CreateAsync(new PostgresOrder
         {OrderDate = DateTime.Now.ToUniversalTime(), Price = 100.55m, Qty = 2});
-    var orders = await repoOrder.GetAsync();
+    var orders = await repoOrder.GetAsync(false);
 
     var repoCategory = app.Services.GetRequiredService<IBaseQueryableRepository<PostgresCategory>>();
     //await repoCategory.CreateAsync(new PostgresCategory {Order = 1, Title = "awfawf"});
-    var categories = repoCategory.GetQueryable();
+    var categories = repoCategory.GetQueryable(false);
     var list = await categories.ToListAsync();
 
     var result = new {Orders = orders, Categories = list};

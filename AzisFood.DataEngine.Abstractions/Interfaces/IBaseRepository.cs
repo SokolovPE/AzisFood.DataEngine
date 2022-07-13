@@ -17,23 +17,26 @@ public interface IBaseRepository<TEntity>
     ///     Get items async
     /// </summary>
     /// <returns>Collection of item</returns>
-    public Task<IEnumerable<TEntity>> GetAsync(CancellationToken token = default);
+    public Task<IEnumerable<TEntity>> GetAsync(bool track = false, CancellationToken token = default);
 
     /// <summary>
     ///     Get item by id
     /// </summary>
     /// <param name="id">Identifier of item</param>
+    /// <param name="track">Should entity be tracked</param>
     /// <param name="token">Token for operation cancel</param>
     /// <returns>Item with supplied id</returns>
-    Task<TEntity> GetAsync(Guid id, CancellationToken token = default);
+    Task<TEntity> GetAsync(Guid id, bool track = false, CancellationToken token = default);
 
     /// <summary>
     ///     Get items by condition
     /// </summary>
     /// <param name="filter">Condition for item filtering</param>
+    /// <param name="track">Should entity be tracked</param>
     /// <param name="token">Token for operation cancel</param>
     /// <returns>Items matching condition</returns>
-    Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> filter, CancellationToken token = default);
+    Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> filter, bool track = false,
+        CancellationToken token = default);
 
     /// <summary>
     ///     Insert new item

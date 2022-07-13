@@ -21,42 +21,46 @@ public interface IDataAccess
     /// <summary>
     ///     Get all entities
     /// </summary>
+    /// <param name="track">Should entity be tracked</param>
     /// <param name="token">Cancellation token</param>
     /// <returns>Items collection</returns>
-    Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(CancellationToken token = default)
+    Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(bool track = false, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity;
     
     /// <summary>
     ///     Get all entities as queryable
     /// </summary>
     /// <returns>Items collection</returns>
-    IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>()
+    IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>(bool track = false)
         where TRepoEntity : class, IRepoEntity;
 
     /// <summary>
     ///     Get single item
     /// </summary>
     /// <param name="id">Identifier of item</param>
+    /// <param name="track">Should entity be tracked</param>
     /// <param name="token">Cancellation token</param>
     /// <returns>Requested item</returns>
-    Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, CancellationToken token = default)
+    Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, bool track = false, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity;
 
     /// <summary>
     ///     Get filtered items
     /// </summary>
     /// <param name="filter">Filter expression</param>
+    /// <param name="track">Should entity be tracked</param>
     /// <param name="token">Cancellation token</param>
     /// <returns>Filtered items</returns>
     Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
-        CancellationToken token = default) where TRepoEntity : class, IRepoEntity;
+        bool track = false, CancellationToken token = default) where TRepoEntity : class, IRepoEntity;
 
     /// <summary>
     ///     Get filtered items
     /// </summary>
     /// <param name="filter">Filter expression</param>
+    /// <param name="track">Should entity be tracked</param>
     /// <returns>Filtered items</returns>
-    IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter)
+    IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter, bool track = false)
         where TRepoEntity : class, IRepoEntity;
     
     /// <summary>

@@ -38,7 +38,7 @@ public class MongoDataAccess : IDataAccess
     public string DbType { get; set; } = DatabaseType.Mongo.ToString();
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(CancellationToken token = default)
+    public async Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(bool track = false, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
     {
         return (await Collection<TRepoEntity>()
@@ -50,13 +50,13 @@ public class MongoDataAccess : IDataAccess
     /// <summary>
     ///     Not implemented
     /// </summary>
-    public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>() where TRepoEntity : class, IRepoEntity
+    public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>(bool track = false) where TRepoEntity : class, IRepoEntity
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc />
-    public async Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, CancellationToken token = default)
+    public async Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, bool track = false, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
     {
         return await (await Collection<TRepoEntity>().FindAsync(item => item.Id == id, null, token))
@@ -65,7 +65,7 @@ public class MongoDataAccess : IDataAccess
 
     /// <inheritdoc />
     public async Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
-        CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+        bool track = false, CancellationToken token = default) where TRepoEntity : class, IRepoEntity
     {
         return await (await Collection<TRepoEntity>().FindAsync(filter, cancellationToken: token))
             .ToListAsync(token);
@@ -74,7 +74,7 @@ public class MongoDataAccess : IDataAccess
     /// <summary>
     ///     Not implemented
     /// </summary>
-    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter)
+    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter, bool track = false)
         where TRepoEntity : class, IRepoEntity
     {
         throw new NotImplementedException();

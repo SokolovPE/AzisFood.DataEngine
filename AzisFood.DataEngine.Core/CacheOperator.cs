@@ -26,7 +26,7 @@ public class CacheOperator<T> : ICacheOperator<T>
     {
         try
         {
-            var items = (await _repository.GetAsync()).ToList();
+            var items = (await _repository.GetAsync(false)).ToList();
 
             if (asHash)
             {

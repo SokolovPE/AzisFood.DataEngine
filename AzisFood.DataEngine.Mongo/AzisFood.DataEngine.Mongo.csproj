@@ -5,7 +5,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Mongo</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.32</PackageVersion>
+        <PackageVersion>1.1.0.34</PackageVersion>
         <Authors>AzisFood</Authors>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>images\logo.png</PackageIcon>
@@ -14,11 +14,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MessagePack.Annotations" Version="2.3.85" />
+        <PackageReference Include="MessagePack.Annotations" Version="2.4.35" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-        <PackageReference Include="MongoDB.Bson" Version="2.14.1" />
-        <PackageReference Include="MongoDB.Driver" Version="2.14.1" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
+        <PackageReference Include="MongoDB.Bson" Version="2.16.1" />
+        <PackageReference Include="MongoDB.Driver" Version="2.16.1" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
@@ -32,6 +32,6 @@
 
     <ItemGroup>
         <None Include="..\logo.png" Pack="true" Visible="false" PackagePath="images\logo.png" />
-        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>

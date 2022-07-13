@@ -5,7 +5,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Core</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.31</PackageVersion>
+        <PackageVersion>1.1.0.34</PackageVersion>
         <PackageIcon>images\logo.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>

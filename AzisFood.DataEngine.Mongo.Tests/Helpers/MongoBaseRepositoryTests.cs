@@ -131,7 +131,7 @@ public class MongoBaseRepositoryTests : IClassFixture<FakeEntityFixture>
         var cts = new CancellationTokenSource(0);
         _testOutputHelper.WriteLine($"Got a cancellation: {cts.IsCancellationRequested}");
         var exceptionInfo = await Assert.ThrowsAsync<OperationCanceledException>(async () =>
-            await _repository.GetAsync(Guid.Empty, cts.Token));
+            await _repository.GetAsync(Guid.Empty, token: cts.Token));
         _testOutputHelper.WriteLine($"Exception message: {exceptionInfo.Message}");
     }
 
@@ -152,7 +152,7 @@ public class MongoBaseRepositoryTests : IClassFixture<FakeEntityFixture>
         var cts = new CancellationTokenSource(0);
         _testOutputHelper.WriteLine($"Got a cancellation: {cts.IsCancellationRequested}");
         var exceptionInfo = await Assert.ThrowsAsync<OperationCanceledException>(async () =>
-            await _repository.GetAsync(x => x.Id.ToString().StartsWith("61"), cts.Token));
+            await _repository.GetAsync(x => x.Id.ToString().StartsWith("61"), token: cts.Token));
         _testOutputHelper.WriteLine($"Exception message: {exceptionInfo.Message}");
     }
 

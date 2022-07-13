@@ -27,37 +27,46 @@ public class PgDataAccess : IDataAccess
     public string DbType { get; set; } = DatabaseType.Postgres.ToString();
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(CancellationToken token = default)
-        where TRepoEntity : class, IRepoEntity
+    public async Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(bool track = false, CancellationToken token = default)
+        where TRepoEntity : class, IRepoEntity => await GetAllQueryable<TRepoEntity>(track).ToListAsync(token);
+
+    /// <inheritdoc />
+    public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>(bool track = false) where TRepoEntity : class, IRepoEntity
     {
-        return await Collection<TRepoEntity>().AsNoTracking().ToListAsync(token);
+        var query = Collection<TRepoEntity>().AsQueryable();
+        if(!track)
+            query = query.AsNoTracking();
+        return query;
     }
 
     /// <inheritdoc />
-    public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>() where TRepoEntity : class, IRepoEntity
-    {
-        return Collection<TRepoEntity>().AsQueryable();
-    }
-
-    /// <inheritdoc />
-    public async Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, CancellationToken token = default)
+    public async Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, bool track = false, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
     {
-        return await Collection<TRepoEntity>().FindAsync(id, token);
+        var entity = await Collection<TRepoEntity>().FindAsync(new object?[] { id }, cancellationToken: token);
+        if (!track && entity != null)
+            Context<TRepoEntity>().Entry(entity).State = EntityState.Detached;
+        return entity;
     }
 
     /// <inheritdoc />
     public async Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
-        CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+        bool track = false, CancellationToken token = default) where TRepoEntity : class, IRepoEntity
     {
-        return await Collection<TRepoEntity>().AsQueryable().Where(filter).ToListAsync(token);
+        var query = Collection<TRepoEntity>().AsQueryable();
+        if (!track)
+            query = query.AsNoTracking();
+        return await query.Where(filter).ToListAsync(token);
     }
 
     /// <inheritdoc />
-    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter)
+    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter, bool track = false)
         where TRepoEntity : class, IRepoEntity
     {
-        return Collection<TRepoEntity>().AsQueryable().Where(filter);
+        var query = Collection<TRepoEntity>().AsQueryable();
+        if (!track)
+            query = query.AsNoTracking();
+        return query.Where(filter);
     }
 
     /// <inheritdoc />
@@ -90,7 +99,7 @@ public class PgDataAccess : IDataAccess
     public async Task RemoveAsync<TRepoEntity>(Guid id, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
     {
-        var entity = await GetAsync<TRepoEntity>(id, token);
+        var entity = await GetAsync<TRepoEntity>(id, false, token);
         if (entity != null) await RemoveAsync(entity, token);
     }
 
@@ -98,7 +107,7 @@ public class PgDataAccess : IDataAccess
     public async Task RemoveAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
         CancellationToken token = default) where TRepoEntity : class, IRepoEntity
     {
-        var entities = await GetAsync(filter, token);
+        var entities = await GetAsync(filter, false, token);
         Collection<TRepoEntity>().RemoveRange(entities);
         await Context<TRepoEntity>().SaveChangesAsync(token);
     }

@@ -30,13 +30,13 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
 
     public string RepoEntityName { get; init; }
 
-    public async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default)
+    public async Task<IEnumerable<TRepoEntity>> GetAsync(bool track = false, CancellationToken token = default)
     {
         _logger.LogInformation("Requested all {RepoEntityName} items", RepoEntityName);
         try
         {
             token.ThrowIfCancellationRequested();
-            var repoEntities = await DataAccess().GetAllAsync<TRepoEntity>(token);
+            var repoEntities = await DataAccess().GetAllAsync<TRepoEntity>(track, token);
             _logger.LogInformation(
                 "Request of all {RepoEntityName} items succeeded", RepoEntityName);
             return repoEntities;
@@ -53,13 +53,13 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         }
     }
 
-    public async Task<TRepoEntity> GetAsync(Guid id, CancellationToken token = default)
+    public async Task<TRepoEntity> GetAsync(Guid id, bool track = false, CancellationToken token = default)
     {
         _logger.LogInformation("Requested {RepoEntityName} with id: {Id}", RepoEntityName, id);
         try
         {
             token.ThrowIfCancellationRequested();
-            var repoEntity = await DataAccess().GetAsync<TRepoEntity>(id, token);
+            var repoEntity = await DataAccess().GetAsync<TRepoEntity>(id, track, token);
             if (repoEntity == null) throw new InvalidOperationException($"{RepoEntityName} with id {id} was not found");
             _logger.LogInformation("Request of {RepoEntityName} with id: {Id} succeeded", RepoEntityName, id);
             return repoEntity;
@@ -77,14 +77,14 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
     }
 
     public async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
-        CancellationToken token = default)
+        bool track = false, CancellationToken token = default)
     {
         _logger.LogInformation("Requested filtered {RepoEntityName} items, filter: {@Filter}", RepoEntityName, filter);
         try
         {
             token.ThrowIfCancellationRequested();
 
-            var repoEntities = await DataAccess().GetAsync(filter, token);
+            var repoEntities = await DataAccess().GetAsync(filter, track, token);
             _logger.LogInformation(
                 "Request of filtered {RepoEntityName} items succeeded, filter: {@Filter}", RepoEntityName, filter);
             return repoEntities;
