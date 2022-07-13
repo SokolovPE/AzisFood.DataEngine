@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using AzisFood.DataEngine.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace AzisFood.DataEngine.Core.Implementations;
 
@@ -33,13 +32,13 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
 
     public async Task<IEnumerable<TRepoEntity>> GetAsync(CancellationToken token = default)
     {
-        _logger.LogInformation($"Requested all {RepoEntityName} items");
+        _logger.LogInformation("Requested all {RepoEntityName} items", RepoEntityName);
         try
         {
             token.ThrowIfCancellationRequested();
             var repoEntities = await DataAccess().GetAllAsync<TRepoEntity>(token);
             _logger.LogInformation(
-                $"Request of all {RepoEntityName} items succeeded");
+                "Request of all {RepoEntityName} items succeeded", RepoEntityName);
             return repoEntities;
         }
         catch (OperationCanceledException)
@@ -49,7 +48,7 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to return all {RepoEntityName} items");
+            _logger.LogError(ex, "There was an error during attempt to return all {RepoEntityName} items", RepoEntityName);
             return default;
         }
     }
@@ -57,12 +56,12 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
     /// <inheritdoc />
     public IQueryable<TRepoEntity> GetQueryable()
     {
-        _logger.LogInformation($"Requested all {RepoEntityName} items as queryable");
+        _logger.LogInformation("Requested all {RepoEntityName} items as queryable", RepoEntityName);
         try
         {
             var repoQueryable = DataAccess().GetAllQueryable<TRepoEntity>();
             _logger.LogInformation(
-                $"Request of all {RepoEntityName} items as queryable succeeded");
+                "Request of all {RepoEntityName} items as queryable succeeded", RepoEntityName);
             return repoQueryable;
         }
         catch (OperationCanceledException)
@@ -72,20 +71,21 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to return all {RepoEntityName} items as queryable");
+            _logger.LogError(ex, "There was an error during attempt to return all {RepoEntityName} items as queryable",
+                RepoEntityName);
             return default;
         }
     }
 
     public async Task<TRepoEntity> GetAsync(Guid id, CancellationToken token = default)
     {
-        _logger.LogInformation($"Requested {RepoEntityName} with id: {id}");
+        _logger.LogInformation("Requested {RepoEntityName} with id: {Id}", RepoEntityName, id);
         try
         {
             token.ThrowIfCancellationRequested();
             var repoEntity = await DataAccess().GetAsync<TRepoEntity>(id, token);
             if (repoEntity == null) throw new InvalidOperationException($"{RepoEntityName} with id {id} was not found");
-            _logger.LogInformation($"Request of {RepoEntityName} with id: {id} succeeded");
+            _logger.LogInformation("Request of {RepoEntityName} with id: {Id} succeeded", RepoEntityName, id);
             return repoEntity;
         }
         catch (OperationCanceledException)
@@ -95,7 +95,7 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to return {RepoEntityName} item");
+            _logger.LogError(ex, "There was an error during attempt to return {RepoEntityName} item", RepoEntityName);
             return default;
         }
     }
@@ -103,14 +103,14 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
     public async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
         CancellationToken token = default)
     {
-        _logger.LogInformation($"Requested filtered {RepoEntityName} items, filter: {filter}");
+        _logger.LogInformation("Requested filtered {RepoEntityName} items, filter: {@Filter}", RepoEntityName, filter);
         try
         {
             token.ThrowIfCancellationRequested();
 
             var repoEntities = await DataAccess().GetAsync(filter, token);
             _logger.LogInformation(
-                $"Request of filtered {RepoEntityName} items succeeded, filter: {filter}");
+                "Request of filtered {RepoEntityName} items succeeded, filter: {@Filter}", RepoEntityName, filter);
             return repoEntities;
         }
         catch (OperationCanceledException)
@@ -121,7 +121,8 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                $"There was an error during attempt to return {RepoEntityName} items with filter {filter}");
+                "There was an error during attempt to return {RepoEntityName} items with filter {@Filter}",
+                RepoEntityName, filter);
             return default;
         }
     }
@@ -129,12 +130,14 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
     /// <inheritdoc />
     public IQueryable<TRepoEntity> GetQueryable(Expression<Func<TRepoEntity, bool>> filter)
     {
-        _logger.LogInformation($"Requested filtered {RepoEntityName} items as queryable, filter: {filter}");
+        _logger.LogInformation("Requested filtered {RepoEntityName} items as queryable, filter: {@Filter}",
+            RepoEntityName, filter);
         try
         {
             var repoEntities = DataAccess().GetQueryable(filter);
             _logger.LogInformation(
-                $"Request of filtered {RepoEntityName} items as querbale succeeded, filter: {filter}");
+                "Request of filtered {RepoEntityName} items as queryable succeeded, filter: {@Filter}", RepoEntityName,
+                filter);
             return repoEntities;
         }
         catch (OperationCanceledException)
@@ -145,19 +148,20 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                $"There was an error during attempt to return {RepoEntityName} items as querbale with filter {filter}");
+                "There was an error during attempt to return {RepoEntityName} items as queryable with filter {@Filter}",
+                RepoEntityName, filter);
             return default;
         }
     }
 
     public async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
     {
-        _logger.LogInformation($"Requested creation of {RepoEntityName}: {JsonConvert.SerializeObject(item)}");
+        _logger.LogInformation("Requested creation of {RepoEntityName}: {@Item}", RepoEntityName, item);
         try
         {
             token.ThrowIfCancellationRequested();
             var created = await DataAccess().CreateAsync(item, token);
-            _logger.LogInformation($"Requested creation of {RepoEntityName} succeeded");
+            _logger.LogInformation("Requested creation of {RepoEntityName} succeeded", RepoEntityName);
             return created;
         }
         catch (OperationCanceledException)
@@ -167,7 +171,7 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to create {RepoEntityName}");
+            _logger.LogError(ex, "There was an error during attempt to create {RepoEntityName}", RepoEntityName);
             return default;
         }
     }
@@ -175,11 +179,11 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
     public async Task UpdateAsync(Guid id, TRepoEntity itemIn, CancellationToken token = default)
     {
         _logger.LogInformation(
-            $"Requested update of {RepoEntityName} with id {id} with new value: {JsonConvert.SerializeObject(itemIn)}");
+            "Requested update of {RepoEntityName} with id {Id} with new value: {@Item}", RepoEntityName, id, itemIn);
         try
         {
             await DataAccess().UpdateAsync(id, itemIn, token);
-            _logger.LogInformation($"Requested update of {RepoEntityName} succeeded");
+            _logger.LogInformation("Requested update of {RepoEntityName} succeeded", RepoEntityName);
         }
         catch (OperationCanceledException)
         {
@@ -188,17 +192,17 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to update {RepoEntityName}");
+            _logger.LogError(ex, "There was an error during attempt to update {RepoEntityName}", RepoEntityName);
         }
     }
 
     public async Task RemoveAsync(TRepoEntity itemIn, CancellationToken token = default)
     {
-        _logger.LogInformation($"Requested delete of {RepoEntityName}: {JsonConvert.SerializeObject(itemIn)}");
+        _logger.LogInformation("Requested delete of {RepoEntityName}: {@Item}", RepoEntityName, itemIn);
         try
         {
             await DataAccess().RemoveAsync(itemIn, token);
-            _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
+            _logger.LogInformation("Requested delete of {RepoEntityName} succeeded", RepoEntityName);
         }
         catch (OperationCanceledException)
         {
@@ -207,17 +211,17 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to delete {RepoEntityName}");
+            _logger.LogError(ex, "There was an error during attempt to delete {RepoEntityName}", RepoEntityName);
         }
     }
 
     public async Task RemoveAsync(Guid id, CancellationToken token = default)
     {
-        _logger.LogInformation($"Requested delete of {RepoEntityName} with id {id}");
+        _logger.LogInformation("Requested delete of {RepoEntityName} with id {Id}", RepoEntityName, id);
         try
         {
             await DataAccess().RemoveAsync<TRepoEntity>(id, token);
-            _logger.LogInformation($"Requested delete of {RepoEntityName} succeeded");
+            _logger.LogInformation("Requested delete of {RepoEntityName} succeeded", RepoEntityName);
         }
         catch (OperationCanceledException)
         {
@@ -226,17 +230,18 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to delete {RepoEntityName}");
+            _logger.LogError(ex, "There was an error during attempt to delete {RepoEntityName}", RepoEntityName);
         }
     }
 
     public async Task RemoveAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
     {
-        _logger.LogInformation($"Requested delete of {RepoEntityName} with filter {filter}");
+        _logger.LogInformation("Requested delete of {RepoEntityName} with filter {@Filter}", RepoEntityName, filter);
         try
         {
             await DataAccess().RemoveAsync(filter, token);
-            _logger.LogInformation($"Requested delete of {RepoEntityName} with filter {filter} succeeded");
+            _logger.LogInformation("Requested delete of {RepoEntityName} with filter {@Filter} succeeded",
+                RepoEntityName, filter);
         }
         catch (OperationCanceledException)
         {
@@ -245,18 +250,18 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to delete {RepoEntityName}");
+            _logger.LogError(ex, "There was an error during attempt to delete {RepoEntityName}", RepoEntityName);
         }
     }
 
     public async Task RemoveManyAsync(Guid[] ids, CancellationToken token = default)
     {
         _logger.LogInformation(
-            $"Requested delete of multiple {RepoEntityName} with ids {JsonConvert.SerializeObject(ids)}");
+            "Requested delete of multiple {RepoEntityName} with ids {Ids}", RepoEntityName, (object) ids);
         try
         {
             await DataAccess().RemoveManyAsync<TRepoEntity>(ids, token);
-            _logger.LogInformation($"Requested delete of multiple {RepoEntityName} succeeded");
+            _logger.LogInformation("Requested delete of multiple {RepoEntityName} succeeded", RepoEntityName);
         }
         catch (OperationCanceledException)
         {
@@ -265,7 +270,8 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to delete multiple {RepoEntityName}");
+            _logger.LogError(ex, "There was an error during attempt to delete multiple {RepoEntityName}",
+                RepoEntityName);
         }
     }
 
@@ -289,8 +295,7 @@ public sealed class BaseQueryableRepository<TRepoEntity> : IBaseQueryableReposit
             throw new ArgumentException(
                 $"Entity {fullName} has no base class. Entity must be based on {nameof(IRepoEntity)} implementation");
 
-        var attribute = Attribute.GetCustomAttribute(parentType, typeof(SupportedBy)) as SupportedBy;
-        if (attribute == null)
+        if (Attribute.GetCustomAttribute(parentType, typeof(SupportedBy)) is not SupportedBy attribute)
             throw new ArgumentException(
                 $"Entity {fullName} has no {nameof(SupportedBy)} attribute. Entity is not supported");
 

@@ -25,7 +25,7 @@ public static class InitExtensions
     public static IServiceCollection AddMongoConnect(this IServiceCollection serviceCollection,
         MongoConnectConfiguration connectConfigurationSettings)
     {
-        return serviceCollection.AddSingleton(provider =>
+        return serviceCollection.AddSingleton(_ =>
             new MongoClient(connectConfigurationSettings.ConnectionString).GetDatabase(
                 connectConfigurationSettings.GetMongoUrl.DatabaseName));
     }

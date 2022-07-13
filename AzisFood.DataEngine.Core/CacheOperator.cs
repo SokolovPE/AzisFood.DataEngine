@@ -39,16 +39,16 @@ public class CacheOperator<T> : ICacheOperator<T>
                 var cacheSetResult = await _cacheService.StoreItemsAsSingleKeyAsync(_repoEntityName, items, expiry);
                 if (!cacheSetResult)
                 {
-                    _logger.LogWarning($"Unable to refresh {_repoEntityName} cache");
+                    _logger.LogWarning("Unable to refresh {@RepoEntityName} cache", _repoEntityName);
                     throw new Exception($"Unable to refresh {_repoEntityName} cache");
                 }
             }
 
-            _logger.LogInformation($"Successfully refreshed {_repoEntityName} cache");
+            _logger.LogInformation("Successfully refreshed {@RepoEntityName} cache", _repoEntityName);
         }
         catch (Exception e)
         {
-            _logger.LogInformation(e, $"Error during recache {_repoEntityName} entity");
+            _logger.LogError(e, "Error during recache {@RepoEntityName} entity", _repoEntityName);
         }
     }
 }

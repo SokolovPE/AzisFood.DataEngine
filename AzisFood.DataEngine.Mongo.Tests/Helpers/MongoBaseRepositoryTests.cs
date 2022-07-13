@@ -51,7 +51,7 @@ public class MongoBaseRepositoryTests : IClassFixture<FakeEntityFixture>
         _mongoCollection = new Mock<IMongoCollection<FakeEntity>>();
         IDataAccess dataAccess = new MongoDataAccess(_mongoDatabase.Object, typeof(FakeEntity));
         Setup();
-        _repository = new BaseRepository<FakeEntity>(_logger.Object, new IDataAccess[1] {dataAccess});
+        _repository = new BaseRepository<FakeEntity>(_logger.Object, new[] {dataAccess});
     }
 
     private void Setup()
@@ -173,7 +173,6 @@ public class MongoBaseRepositoryTests : IClassFixture<FakeEntityFixture>
         var cts = new CancellationTokenSource(0);
         _testOutputHelper.WriteLine($"Got a cancellation: {cts.IsCancellationRequested}");
         var newEntity = new FakeEntity {LongField = 123456, StringField = "text_value"};
-        ;
         var exceptionInfo = await Assert.ThrowsAsync<OperationCanceledException>(async () =>
             await _repository.CreateAsync(newEntity, cts.Token));
         _testOutputHelper.WriteLine($"Exception message: {exceptionInfo.Message}");

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using AzisFood.DataEngine.Abstractions.Interfaces;
 using Microsoft.Extensions.Logging;
 using OpenTracing;
-using OpenTracing.Tag;
 
 namespace AzisFood.DataEngine.Core.Implementations;
 
@@ -68,10 +67,10 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
     public async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
     {
-        var mainSpan = _tracer.BuildSpan("mongo-cached-repo.create").StartActive();
+        var mainSpan = _tracer.BuildSpan("cached-repo.create").StartActive();
         try
         {
-            var insertSpan = _tracer.BuildSpan("insertion").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
+            var insertSpan = _tracer.BuildSpan("insertion").AsChildOf(mainSpan.Span)
                 .Start();
             var created = await _base.CreateAsync(item, token);
             insertSpan.Finish();
@@ -86,10 +85,10 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
     public async Task UpdateAsync(Guid id, TRepoEntity itemIn, CancellationToken token = default)
     {
-        var mainSpan = _tracer.BuildSpan("mongo-cached-repo.update").StartActive();
+        var mainSpan = _tracer.BuildSpan("cached-repo.update").StartActive();
         try
         {
-            var replaceSpan = _tracer.BuildSpan("replace").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
+            var replaceSpan = _tracer.BuildSpan("replace").AsChildOf(mainSpan.Span)
                 .Start();
             await _base.UpdateAsync(id, itemIn, token);
             replaceSpan.Finish();
@@ -103,10 +102,10 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
     public async Task RemoveAsync(TRepoEntity itemIn, CancellationToken token = default)
     {
-        var mainSpan = _tracer.BuildSpan("mongo-cached-repo.delete").StartActive();
+        var mainSpan = _tracer.BuildSpan("cached-repo.delete").StartActive();
         try
         {
-            var deleteSpan = _tracer.BuildSpan("deletion").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
+            var deleteSpan = _tracer.BuildSpan("deletion").AsChildOf(mainSpan.Span)
                 .Start();
             await _base.RemoveAsync(itemIn, token);
             deleteSpan.Finish();
@@ -120,10 +119,10 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
     public async Task RemoveAsync(Guid id, CancellationToken token = default)
     {
-        var mainSpan = _tracer.BuildSpan("mongo-cached-repo.delete").StartActive();
+        var mainSpan = _tracer.BuildSpan("cached-repo.delete").StartActive();
         try
         {
-            var deleteSpan = _tracer.BuildSpan("deletion").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
+            var deleteSpan = _tracer.BuildSpan("deletion").AsChildOf(mainSpan.Span)
                 .Start();
             await _base.RemoveAsync(id, token);
             deleteSpan.Finish();
@@ -137,10 +136,10 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
     public async Task RemoveAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
     {
-        var mainSpan = _tracer.BuildSpan("mongo-cached-repo.delete-filtered").StartActive();
+        var mainSpan = _tracer.BuildSpan("cached-repo.delete-filtered").StartActive();
         try
         {
-            var deleteSpan = _tracer.BuildSpan("deletion-filtered").WithTag(Tags.DbType, "Mongo")
+            var deleteSpan = _tracer.BuildSpan("deletion-filtered")
                 .AsChildOf(mainSpan.Span)
                 .Start();
             await _base.RemoveAsync(filter, token);
@@ -155,10 +154,10 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
     public async Task RemoveManyAsync(Guid[] ids, CancellationToken token = default)
     {
-        var mainSpan = _tracer.BuildSpan("mongo-cached-repo.delete").StartActive();
+        var mainSpan = _tracer.BuildSpan("cached-repo.delete").StartActive();
         try
         {
-            var deleteSpan = _tracer.BuildSpan("deletion").WithTag(Tags.DbType, "Mongo").AsChildOf(mainSpan.Span)
+            var deleteSpan = _tracer.BuildSpan("deletion").AsChildOf(mainSpan.Span)
                 .Start();
             await _base.RemoveManyAsync(ids, token);
             deleteSpan.Finish();
@@ -178,41 +177,41 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     /// <returns>Entries of entity</returns>
     private async Task<IEnumerable<TRepoEntity>> Get(bool hashMode = true, CancellationToken token = default)
     {
-        _logger.LogInformation($"Requested all {RepoEntityName} items");
-        var mainSpan = _tracer.BuildSpan("mongo-cached-repo.get-all").StartActive();
+        _logger.LogInformation("Requested all {RepoEntityName} items", RepoEntityName);
+        var mainSpan = _tracer.BuildSpan("cached-repo.get-all").StartActive();
         try
         {
             token.ThrowIfCancellationRequested();
-            var redisSpan = _tracer.BuildSpan("mongo-cached-repo.get.cache").Start();
+            var redisSpan = _tracer.BuildSpan("cached-repo.get.cache").Start();
             var redisResult = hashMode
                 ? await _cacheAdapter.GetCollectionFromHashAsync<TRepoEntity>()
                 : await _cacheAdapter.GetFromSingleKeyAsync<TRepoEntity>(RepoEntityName);
             redisSpan.Finish();
             if (redisResult != null)
             {
-                var resultSpan = _tracer.BuildSpan("mongo-cached-repo.result.cache").AsChildOf(mainSpan.Span).Start();
-                var conversionSpan = _tracer.BuildSpan("mongo-cached-repo.get-all-conversion.cache").AsChildOf(resultSpan).Start();
-                var mongoRepoEntities = redisResult.ToArray();
+                var resultSpan = _tracer.BuildSpan("cached-repo.result.cache").AsChildOf(mainSpan.Span).Start();
+                var conversionSpan = _tracer.BuildSpan("cached-repo.get-all-conversion.cache").AsChildOf(resultSpan).Start();
+                var cacheEntities = redisResult.ToArray();
                 conversionSpan.Finish();
-                if (mongoRepoEntities .Length > 0)
+                if (cacheEntities .Length > 0)
                 {
                     _logger.LogInformation(
-                        $"Request of all {RepoEntityName} items returned {mongoRepoEntities.Length} items");
+                        "Request of all {RepoEntityName} items returned {ItemCnt} items", RepoEntityName, cacheEntities.Length);
                     resultSpan.Finish();
-                    return mongoRepoEntities;
+                    return cacheEntities;
                 }
                 resultSpan.Finish();
             }
 
-            _logger.LogWarning($"Items of type {RepoEntityName} are not presented in cache");
-            var dbSpan = _tracer.BuildSpan("mongo-cached-repo.get.db").WithTag(Tags.DbType, "Mongo")
+            _logger.LogWarning("Items of type {RepoEntityName} are not presented in cache", RepoEntityName);
+            var dbSpan = _tracer.BuildSpan("cached-repo.get.db")
                 .AsChildOf(mainSpan.Span).Start();
             var dbResult = await _base.GetAsync(token);
             dbSpan.Finish();
             await _eventHandler.NotifyMissing(token);
 
             var repoEntities = dbResult as TRepoEntity[] ?? dbResult.ToArray();
-            _logger.LogInformation($"Request of all {RepoEntityName} items returned {repoEntities.Length} items");
+            _logger.LogInformation("Request of all {RepoEntityName} items returned {ItemCnt} items", RepoEntityName, repoEntities.Length);
             return repoEntities;
         }
         catch (OperationCanceledException)
@@ -222,7 +221,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to return all {RepoEntityName} items");
+            _logger.LogError(ex, "There was an error during attempt to return all {RepoEntityName} items", RepoEntityName);
             return default;
         }
         finally
@@ -241,8 +240,8 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     private async Task<IEnumerable<TRepoEntity>> GetFiltered(Expression<Func<TRepoEntity, bool>> filter,
         bool hashMode = true, CancellationToken token = default)
     {
-        _logger.LogInformation($"Requested filtered {RepoEntityName} items, filter: {filter}");
-        var mainSpan = _tracer.BuildSpan("mongo-cached-repo.get-filtered").StartActive();
+        _logger.LogInformation("Requested filtered {RepoEntityName} items, filter: {@Filter}", RepoEntityName, filter);
+        var mainSpan = _tracer.BuildSpan("cached-repo.get-filtered").StartActive();
         try
         {
             token.ThrowIfCancellationRequested();
@@ -252,17 +251,18 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
             if (redisResult != null)
             {
-                var mongoRepoEntities = redisResult.Where(filter.Compile()).ToArray();
-                if (mongoRepoEntities.Length > 0)
+                var redisEntities = redisResult.Where(filter.Compile()).ToArray();
+                if (redisEntities.Length > 0)
                 {
                     _logger.LogInformation(
-                        $"Request of filtered {RepoEntityName} items returned {mongoRepoEntities.Length} items, filter: {filter}");
-                    return mongoRepoEntities;
+                        "Request of filtered {RepoEntityName} items returned {ItemCnt} items, filter: {@Filter}",
+                        RepoEntityName, redisEntities.Length, filter);
+                    return redisEntities;
                 }
             }
 
-            _logger.LogWarning($"Items of type {RepoEntityName} are not presented in cache");
-            var dbSpan = _tracer.BuildSpan("mongo-cached-repo.get-filtered.db").WithTag(Tags.DbType, "Mongo")
+            _logger.LogWarning("Items of type {RepoEntityName} are not presented in cache", RepoEntityName);
+            var dbSpan = _tracer.BuildSpan("cached-repo.get-filtered.db")
                 .AsChildOf(mainSpan.Span).Start();
             var dbResult = await _base.GetAsync(filter, token);
             dbSpan.Finish();
@@ -270,7 +270,8 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
             var repoEntities = dbResult as TRepoEntity[] ?? dbResult.ToArray();
             _logger.LogInformation(
-                $"Request of filtered {RepoEntityName} items returned {repoEntities.Length} items, filter: {filter}");
+                "Request of filtered {RepoEntityName} items returned {repoEntities.Length} items, filter: {@Filter}",
+                RepoEntityName, repoEntities.Length, filter);
             return repoEntities;
         }
         catch (OperationCanceledException)
@@ -281,7 +282,8 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                $"There was an error during attempt to return filtered {RepoEntityName} items, filter: {filter}");
+                "There was an error during attempt to return filtered {RepoEntityName} items, filter: {@Filter}",
+                RepoEntityName, filter);
             return default;
         }
         finally
@@ -299,7 +301,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
     /// <returns>Entry of entity</returns>
     private async Task<TRepoEntity> Get(Guid id, bool hashMode = true, CancellationToken token = default)
     {
-        var mainSpan = _tracer.BuildSpan("mongo-cached-repo.get").StartActive();
+        var mainSpan = _tracer.BuildSpan("cached-repo.get").StartActive();
         try
         {
             var redisResult = hashMode
@@ -308,17 +310,17 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
 
             if (redisResult != null)
             {
-                _logger.LogInformation($"Request of {RepoEntityName} with id: {id} succeeded");
+                _logger.LogInformation("Request of {RepoEntityName} with id: {Id} succeeded", RepoEntityName, id);
                 return redisResult;
             }
 
-            _logger.LogWarning($"Item of type {RepoEntityName}  with id: {id} is not presented in cache");
-            var dbSpan = _tracer.BuildSpan("mongo-cached-repo.get.db").WithTag(Tags.DbType, "Mongo")
+            _logger.LogWarning("Item of type {RepoEntityName}  with id: {Id} is not presented in cache", RepoEntityName, id);
+            var dbSpan = _tracer.BuildSpan("cached-repo.get.db")
                 .AsChildOf(mainSpan.Span).Start();
             var dbResult = await _base.GetAsync(id, token);
             dbSpan.Finish();
             await _eventHandler.NotifyMissing(id, token);
-            _logger.LogInformation($"Request of {RepoEntityName} with id: {id} succeeded");
+            _logger.LogInformation("Request of {RepoEntityName} with id: {Id} succeeded", RepoEntityName, id);
             return dbResult;
         }
         catch (OperationCanceledException)
@@ -328,7 +330,7 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"There was an error during attempt to return {RepoEntityName} item");
+            _logger.LogError(ex, "There was an error during attempt to return {RepoEntityName} item", RepoEntityName);
             return default;
         }
         finally
