@@ -5,8 +5,12 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Mongo</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.31-pre</PackageVersion>
+        <PackageVersion>1.1.0.32</PackageVersion>
         <Authors>AzisFood</Authors>
+        <PackageIcon>images\logo.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/SokolovPE/AzisFood.DataEngine</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -30,4 +34,8 @@
         <ProjectReference Include="..\AzisFood.DataEngine.Core\AzisFood.DataEngine.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\logo.png" Visible="false" Pack="true" PackagePath="images\logo.png" />
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 </Project>

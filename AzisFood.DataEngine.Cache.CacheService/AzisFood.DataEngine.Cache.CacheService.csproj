@@ -7,7 +7,9 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Cache.CacheService</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.16</PackageVersion>
+        <PackageVersion>1.1.0.17</PackageVersion>
+        <PackageIcon>images\logo.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,4 +23,7 @@
         <ProjectReference Include="..\AzisFood.DataEngine.Abstractions\AzisFood.DataEngine.Abstractions.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\logo.png" Pack="true" Visible="false" PackagePath="images\logo.png" />
+    </ItemGroup>
 </Project>

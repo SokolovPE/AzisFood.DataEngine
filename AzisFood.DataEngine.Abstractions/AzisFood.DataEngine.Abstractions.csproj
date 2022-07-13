@@ -5,11 +5,12 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Abstractions</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.30-pre</PackageVersion>
+        <PackageVersion>1.1.0.31</PackageVersion>
+        <PackageIcon>images\logo.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MongoDB.Driver" Version="2.14.1" />
+        <None Include="..\logo.png" Pack="true" Visible="false" PackagePath="images\logo.png" />
     </ItemGroup>
-
 </Project>

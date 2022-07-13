@@ -5,7 +5,9 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Core</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.30-pre</PackageVersion>
+        <PackageVersion>1.1.0.31</PackageVersion>
+        <PackageIcon>images\logo.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,8 +17,10 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="OpenTracing.Contrib.NetCore" Version="0.8.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\logo.png" Pack="true" Visible="false" PackagePath="images\logo.png" />
+    </ItemGroup>
 </Project>

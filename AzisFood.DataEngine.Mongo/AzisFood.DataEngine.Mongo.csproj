@@ -5,8 +5,12 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.Mongo</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.30-pre</PackageVersion>
+        <PackageVersion>1.1.0.32</PackageVersion>
         <Authors>AzisFood</Authors>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>images\logo.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/SokolovPE/AzisFood.DataEngine</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,7 +23,6 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,4 +30,8 @@
         <ProjectReference Include="..\AzisFood.DataEngine.Core\AzisFood.DataEngine.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\logo.png" Pack="true" Visible="false" PackagePath="images\logo.png" />
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 </Project>
