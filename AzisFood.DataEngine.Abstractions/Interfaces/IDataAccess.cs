@@ -26,12 +26,32 @@ public interface IDataAccess
     /// <returns>Items collection</returns>
     Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(bool track = false, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity;
+
+    /// <summary>
+    ///     Get all entities projected
+    /// </summary>
+    /// <param name="projector">Projector function</param>
+    /// <param name="track">Should entity be tracked</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>Items collection</returns>
+    Task<IEnumerable<TProject>> GetAllAsync<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector, bool track = false,
+        CancellationToken token = default)
+        where TRepoEntity : class, IRepoEntity;
     
     /// <summary>
     ///     Get all entities as queryable
     /// </summary>
     /// <returns>Items collection</returns>
     IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>(bool track = false)
+        where TRepoEntity : class, IRepoEntity;
+
+    /// <summary>
+    ///     Get all entities as queryable
+    /// </summary>
+    /// <returns>Items collection</returns>
+    IQueryable<TProject> GetAllQueryable<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector, bool track = false)
         where TRepoEntity : class, IRepoEntity;
 
     /// <summary>
@@ -45,14 +65,41 @@ public interface IDataAccess
         where TRepoEntity : class, IRepoEntity;
 
     /// <summary>
+    ///     Get single item projected
+    /// </summary>
+    /// <param name="id">Identifier of item</param>
+    /// <param name="projector">Projector function</param>
+    /// <param name="track">Should entity be tracked</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>Requested item</returns>
+    Task<TProject?> GetAsync<TRepoEntity, TProject>(Guid id,
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector, bool track = false,
+        CancellationToken token = default)
+        where TRepoEntity : class, IRepoEntity;
+
+    /// <summary>
     ///     Get filtered items
     /// </summary>
     /// <param name="filter">Filter expression</param>
     /// <param name="track">Should entity be tracked</param>
     /// <param name="token">Cancellation token</param>
     /// <returns>Filtered items</returns>
-    Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
+    Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>>? filter = null,
         bool track = false, CancellationToken token = default) where TRepoEntity : class, IRepoEntity;
+
+    /// <summary>
+    ///     Get filtered items projected
+    /// </summary>
+    /// <param name="filter">Filter expression</param>
+    /// <param name="projector">Projector function</param>
+    /// <param name="track">Should entity be tracked</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>Filtered items</returns>
+    Task<IEnumerable<TProject>> GetAsync<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector,
+        Expression<Func<TRepoEntity, bool>>? filter = null, bool track = false,
+        CancellationToken token = default)
+        where TRepoEntity : class, IRepoEntity;
 
     /// <summary>
     ///     Get filtered items
@@ -60,7 +107,20 @@ public interface IDataAccess
     /// <param name="filter">Filter expression</param>
     /// <param name="track">Should entity be tracked</param>
     /// <returns>Filtered items</returns>
-    IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter, bool track = false)
+    IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>>? filter = null,
+        bool track = false)
+        where TRepoEntity : class, IRepoEntity;
+
+    /// <summary>
+    ///     Get filtered items projected
+    /// </summary>
+    /// <param name="filter">Filter expression</param>
+    /// <param name="projector">Projector function</param>
+    /// <param name="track">Should entity be tracked</param>
+    /// <returns>Filtered items</returns>
+    IQueryable<TProject> GetQueryable<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector,
+        Expression<Func<TRepoEntity, bool>>? filter = null, bool track = false)
         where TRepoEntity : class, IRepoEntity;
     
     /// <summary>
@@ -100,7 +160,7 @@ public interface IDataAccess
     /// </summary>
     /// <param name="filter">Filter expression</param>
     /// <param name="token">Cancellation token</param>
-    Task RemoveAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
+    Task RemoveAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>>? filter = null, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity;
 
     /// <summary>

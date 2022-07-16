@@ -30,43 +30,114 @@ public class PgDataAccess : IDataAccess
     public async Task<IEnumerable<TRepoEntity>> GetAllAsync<TRepoEntity>(bool track = false, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity => await GetAllQueryable<TRepoEntity>(track).ToListAsync(token);
 
+    public async Task<IEnumerable<TProject>> GetAllAsync<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector, bool track = false,
+        CancellationToken token = default) where TRepoEntity : class, IRepoEntity =>
+        await projector.Invoke(GetAllQueryable<TRepoEntity>(track)).ToListAsync(token);
+
     /// <inheritdoc />
-    public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>(bool track = false) where TRepoEntity : class, IRepoEntity
+    public IQueryable<TProject> GetAllQueryable<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector,
+        bool track = false) where TRepoEntity : class, IRepoEntity
     {
         var query = Collection<TRepoEntity>().AsQueryable();
-        if(!track)
+        if (!track)
+            query = query.AsNoTracking();
+        var set = projector.Invoke(query);
+        return set;
+    }
+
+    /// <inheritdoc />
+    public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>(bool track = false)
+        where TRepoEntity : class, IRepoEntity
+    {
+        var query = Collection<TRepoEntity>().AsQueryable();
+        if (!track)
             query = query.AsNoTracking();
         return query;
     }
 
     /// <inheritdoc />
-    public async Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, bool track = false, CancellationToken token = default)
+    public async Task<TRepoEntity?> GetAsync<TRepoEntity>(Guid id, bool track = false,
+        CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
     {
-        var entity = await Collection<TRepoEntity>().FindAsync(new object?[] { id }, cancellationToken: token);
+        var entity = await Collection<TRepoEntity>().FindAsync(new object?[] {id}, cancellationToken: token);
         if (!track && entity != null)
             Context<TRepoEntity>().Entry(entity).State = EntityState.Detached;
         return entity;
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
+    public async Task<TProject?> GetAsync<TRepoEntity, TProject>(Guid id,
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector, bool track = false,
+        CancellationToken token = default)
+        where TRepoEntity : class, IRepoEntity
+    {
+        var query = Collection<TRepoEntity>().Where(entity => entity.Id == id);
+        if (!track)
+            query = query.AsNoTracking();
+        var entity = await projector.Invoke(query).FirstOrDefaultAsync(token);
+        return entity;
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<TProject>> GetAsync<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector,
+        Expression<Func<TRepoEntity, bool>>? filter = null, bool track = false,
+        CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+    {
+        var query = Collection<TRepoEntity>().AsQueryable();
+        if (!track)
+            query = query.AsNoTracking();
+
+        if (filter != null)
+            query = query.Where(filter);
+
+        var set = projector.Invoke(query);
+        return await set.ToListAsync(token);
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>>? filter = null,
         bool track = false, CancellationToken token = default) where TRepoEntity : class, IRepoEntity
     {
         var query = Collection<TRepoEntity>().AsQueryable();
         if (!track)
             query = query.AsNoTracking();
-        return await query.Where(filter).ToListAsync(token);
+        
+        if (filter != null)
+            query = query.Where(filter);
+        
+        return await query.ToListAsync(token);
     }
 
     /// <inheritdoc />
-    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter, bool track = false)
+    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>>? filter = null, bool track = false)
         where TRepoEntity : class, IRepoEntity
     {
         var query = Collection<TRepoEntity>().AsQueryable();
         if (!track)
             query = query.AsNoTracking();
-        return query.Where(filter);
+        
+        if (filter != null)
+            query = query.Where(filter);
+        
+        return query;
+    }
+
+    public IQueryable<TProject> GetQueryable<TRepoEntity, TProject>(Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector,
+        Expression<Func<TRepoEntity, bool>>? filter = null, bool track = false)
+        where TRepoEntity : class, IRepoEntity
+    {
+        var query = Collection<TRepoEntity>().AsQueryable();
+        if (!track)
+            query = query.AsNoTracking();
+        
+        if (filter != null)
+            query = query.Where(filter);
+        
+        return projector.Invoke(query);
     }
 
     /// <inheritdoc />
@@ -104,7 +175,7 @@ public class PgDataAccess : IDataAccess
     }
 
     /// <inheritdoc />
-    public async Task RemoveAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
+    public async Task RemoveAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>>? filter = null,
         CancellationToken token = default) where TRepoEntity : class, IRepoEntity
     {
         var entities = await GetAsync(filter, false, token);

@@ -46,11 +46,29 @@ public class MongoDataAccess : IDataAccess
             .ToEnumerable(token);
     }
 
+    /// <summary>
+    ///     Not implemented
+    /// </summary>
+    public Task<IEnumerable<TProject>> GetAllAsync<TRepoEntity, TProject>(Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector, bool track = false, CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+    {
+        throw new NotImplementedException();
+    }
+
 
     /// <summary>
     ///     Not implemented
     /// </summary>
     public IQueryable<TRepoEntity> GetAllQueryable<TRepoEntity>(bool track = false) where TRepoEntity : class, IRepoEntity
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///     Not implemented
+    /// </summary>
+    public IQueryable<TProject> GetAllQueryable<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector, bool track = false)
+        where TRepoEntity : class, IRepoEntity
     {
         throw new NotImplementedException();
     }
@@ -63,8 +81,18 @@ public class MongoDataAccess : IDataAccess
             .FirstOrDefaultAsync(token);
     }
 
+    /// <summary>
+    ///     Not implemented
+    /// </summary>
+    public Task<TProject?> GetAsync<TRepoEntity, TProject>(Guid id,
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector, bool track = false,
+        CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+    {
+        throw new NotImplementedException();
+    }
+
     /// <inheritdoc />
-    public async Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
+    public async Task<IEnumerable<TRepoEntity>> GetAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>>? filter = null,
         bool track = false, CancellationToken token = default) where TRepoEntity : class, IRepoEntity
     {
         return await (await Collection<TRepoEntity>().FindAsync(filter, cancellationToken: token))
@@ -74,8 +102,30 @@ public class MongoDataAccess : IDataAccess
     /// <summary>
     ///     Not implemented
     /// </summary>
-    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter, bool track = false)
+    public Task<IEnumerable<TProject>> GetAsync<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector,
+        Expression<Func<TRepoEntity, bool>>? filter = null, bool track = false,
+        CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///     Not implemented
+    /// </summary>
+    public IQueryable<TRepoEntity> GetQueryable<TRepoEntity>(Expression<Func<TRepoEntity, bool>>? filter = null,
+        bool track = false)
         where TRepoEntity : class, IRepoEntity
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///     Not implemented
+    /// </summary>
+    public IQueryable<TProject> GetQueryable<TRepoEntity, TProject>(
+        Func<IQueryable<TRepoEntity>, IQueryable<TProject>> projector,
+        Expression<Func<TRepoEntity, bool>>? filter = null, bool track = false) where TRepoEntity : class, IRepoEntity
     {
         throw new NotImplementedException();
     }
@@ -112,7 +162,7 @@ public class MongoDataAccess : IDataAccess
     }
 
     /// <inheritdoc />
-    public async Task RemoveAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
+    public async Task RemoveAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>>? filter = null,
         CancellationToken token = default) where TRepoEntity : class, IRepoEntity
     {
         await Collection<TRepoEntity>().DeleteManyAsync(filter, token);
@@ -145,8 +195,7 @@ public class MongoDataAccess : IDataAccess
         // If info is not presented in dictionary scan type and attribute
         var fullName = type.FullName;
 
-        var attribute = Attribute.GetCustomAttribute(type, typeof(ConnectionAlias)) as ConnectionAlias;
-        if (attribute == null)
+        if (Attribute.GetCustomAttribute(type, typeof(ConnectionAlias)) is not ConnectionAlias attribute)
             throw new ArgumentException(
                 $"Entity {fullName} has no {nameof(ConnectionAlias)} attribute. Entity is not supported");
 
