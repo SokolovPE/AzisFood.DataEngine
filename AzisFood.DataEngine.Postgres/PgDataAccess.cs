@@ -144,8 +144,9 @@ public class PgDataAccess : IDataAccess
     public async Task<TRepoEntity> CreateAsync<TRepoEntity>(TRepoEntity item, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
     {
-        Collection<TRepoEntity>().Add(item);
-        await Context<TRepoEntity>().SaveChangesAsync(token);
+        var ctx = Context<TRepoEntity>();
+        ctx.Set<TRepoEntity>().Add(item);
+        await ctx.SaveChangesAsync(token);
         return item;
     }
 
@@ -162,8 +163,9 @@ public class PgDataAccess : IDataAccess
     public async Task RemoveAsync<TRepoEntity>(TRepoEntity itemIn, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
     {
-        Collection<TRepoEntity>().Remove(itemIn);
-        await Context<TRepoEntity>().SaveChangesAsync(token);
+        var ctx = Context<TRepoEntity>();
+        ctx.Set<TRepoEntity>().Remove(itemIn);
+        await ctx.SaveChangesAsync(token);
     }
 
     /// <inheritdoc />
@@ -179,8 +181,9 @@ public class PgDataAccess : IDataAccess
         CancellationToken token = default) where TRepoEntity : class, IRepoEntity
     {
         var entities = await GetAsync(filter, false, token);
-        Collection<TRepoEntity>().RemoveRange(entities);
-        await Context<TRepoEntity>().SaveChangesAsync(token);
+        var ctx = Context<TRepoEntity>();
+        ctx.Set<TRepoEntity>().RemoveRange(entities);
+        await ctx.SaveChangesAsync(token);
     }
 
     /// <inheritdoc />

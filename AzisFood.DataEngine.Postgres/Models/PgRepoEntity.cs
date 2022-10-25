@@ -11,6 +11,11 @@ namespace AzisFood.DataEngine.Postgres.Models;
 [MessagePackObject]
 public abstract class PgRepoEntity<TDbContext> : IRepoEntity where TDbContext : DbContext
 {
+    protected PgRepoEntity()
+    {
+        Id = Guid.NewGuid();
+    }
+    
     /// <summary>
     ///     Identifier
     /// </summary>
