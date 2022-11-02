@@ -1,6 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=cf8535e9_002Dda85_002D454a_002D9388_002D6afd644cf64a/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="MongoBaseRepositoryTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::AFE5DA80-D5BA-480D-9013-5CD63C6AA34E::net6.0::AzisFood.DataEngine.Mongo.Tests.Helpers.MongoBaseRepositoryTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=cf8535e9_002Dda85_002D454a_002D9388_002D6afd644cf64a/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="MongoBaseRepositoryTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::AFE5DA80-D5BA-480D-9013-5CD63C6AA34E::net6.0::AzisFood.DataEngine.Mongo.Tests.Helpers.MongoBaseRepositoryTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

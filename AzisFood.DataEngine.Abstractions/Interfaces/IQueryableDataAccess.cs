@@ -69,7 +69,7 @@ public interface IQueryableDataAccess
     /// <summary>
     ///     Remove item by id
     /// </summary>
-    /// <param name="id">If od item to be removed</param>
+    /// <param name="id">Id of item to be removed</param>
     /// <param name="token">Cancellation token</param>
     Task RemoveAsync<TRepoEntity>(Guid id, CancellationToken token = default) where TRepoEntity : class, IRepoEntity;
 

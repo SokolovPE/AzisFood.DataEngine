@@ -151,7 +151,7 @@ public interface IDataAccess
     /// <summary>
     ///     Remove item by id
     /// </summary>
-    /// <param name="id">If od item to be removed</param>
+    /// <param name="id">Id of item to be removed</param>
     /// <param name="token">Cancellation token</param>
     Task RemoveAsync<TRepoEntity>(Guid id, CancellationToken token = default) where TRepoEntity : class, IRepoEntity;
 
@@ -170,4 +170,20 @@ public interface IDataAccess
     /// <param name="token">Cancellation token</param>
     Task RemoveManyAsync<TRepoEntity>(Guid[] ids, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity;
+    
+    /// <summary>
+    ///     Check item existence by id
+    /// </summary>
+    /// <param name="id">Id of record</param>
+    /// <param name="token">Cancellation token</param>
+    Task<bool> ExistsAsync<TRepoEntity>(Guid id,
+        CancellationToken token = default) where TRepoEntity : class, IRepoEntity;
+    
+    /// <summary>
+    ///     Check item existence by filter
+    /// </summary>
+    /// <param name="filter">Filter expression</param>
+    /// <param name="token">Cancellation token</param>
+    Task<bool>  ExistsAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
+        CancellationToken token = default) where TRepoEntity : class, IRepoEntity;
 }

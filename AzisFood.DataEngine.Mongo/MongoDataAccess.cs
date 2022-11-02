@@ -175,6 +175,22 @@ public class MongoDataAccess : IDataAccess
         await Collection<TRepoEntity>().DeleteManyAsync(item => ((IList) ids).Contains(item.Id), token);
     }
 
+    /// <inheritdoc />
+    public async Task<bool> ExistsAsync<TRepoEntity>(Guid id, CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+    {
+        var itemExists =
+            await (await Collection<TRepoEntity>().FindAsync(filter: item => item.Id == id, cancellationToken: token))
+                .AnyAsync(token);
+        return itemExists;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ExistsAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+    {
+        var itemExists = await (await Collection<TRepoEntity>().FindAsync(filter: filter, cancellationToken: token)).AnyAsync(token);
+        return itemExists;
+    }
+
     private IMongoCollection<TRepoEntity> Collection<TRepoEntity>() where TRepoEntity : class, IRepoEntity
     {
         return Database<TRepoEntity>().GetCollection<TRepoEntity>(typeof(TRepoEntity).Name);

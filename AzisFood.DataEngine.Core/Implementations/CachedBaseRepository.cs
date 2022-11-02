@@ -169,6 +169,18 @@ public class CachedBaseRepository<TRepoEntity> : ICachedBaseRepository<TRepoEnti
         }
     }
 
+    public async Task<bool> ExistsAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
+    {
+        // TODO: Add cache check first
+        return await _base.ExistsAsync(filter, token);
+    }
+
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken token = default)
+    {
+        // TODO: Add cache check first
+        return await _base.ExistsAsync(id, token);
+    }
+
     /// <summary>
     ///     Get items from cache
     /// </summary>

@@ -28,8 +28,10 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         RepoEntityName = typeof(TRepoEntity).Name;
     }
 
+    /// <inheritdoc />
     public string RepoEntityName { get; init; }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<TRepoEntity>> GetAsync(bool track = false, CancellationToken token = default)
     {
         _logger.LogInformation("Requested all {RepoEntityName} items", RepoEntityName);
@@ -53,15 +55,16 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         }
     }
 
+    /// <inheritdoc />
     public async Task<TRepoEntity> GetAsync(Guid id, bool track = false, CancellationToken token = default)
     {
-        _logger.LogInformation("Requested {RepoEntityName} with id: {Id}", RepoEntityName, id);
+        _logger.LogInformation("Requested {RepoEntityName} with id: {Id}", RepoEntityName, id.ToString());
         try
         {
             token.ThrowIfCancellationRequested();
             var repoEntity = await DataAccess().GetAsync<TRepoEntity>(id, track, token);
             if (repoEntity == null) throw new InvalidOperationException($"{RepoEntityName} with id {id} was not found");
-            _logger.LogInformation("Request of {RepoEntityName} with id: {Id} succeeded", RepoEntityName, id);
+            _logger.LogInformation("Request of {RepoEntityName} with id: {Id} succeeded", RepoEntityName, id.ToString());
             return repoEntity;
         }
         catch (OperationCanceledException)
@@ -75,6 +78,7 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
             return default;
         }
     }
+    /// <inheritdoc />
 
     public async Task<IEnumerable<TRepoEntity>> GetAsync(Expression<Func<TRepoEntity, bool>> filter,
         bool track = false, CancellationToken token = default)
@@ -103,6 +107,7 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         }
     }
 
+    /// <inheritdoc />
     public async Task<TRepoEntity> CreateAsync(TRepoEntity item, CancellationToken token = default)
     {
         _logger.LogInformation("Requested creation of {RepoEntityName}: {@Item}", RepoEntityName, item);
@@ -125,10 +130,11 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         }
     }
 
+    /// <inheritdoc />
     public async Task UpdateAsync(Guid id, TRepoEntity itemIn, CancellationToken token = default)
     {
         _logger.LogInformation(
-            "Requested update of {RepoEntityName} with id {Id} with new value: {@Item}", RepoEntityName, id, itemIn);
+            "Requested update of {RepoEntityName} with id {Id} with new value: {@Item}", RepoEntityName, id.ToString(), itemIn);
         try
         {
             await DataAccess().UpdateAsync(id, itemIn, token);
@@ -145,6 +151,7 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         }
     }
 
+    /// <inheritdoc />
     public async Task RemoveAsync(TRepoEntity itemIn, CancellationToken token = default)
     {
         _logger.LogInformation("Requested delete of {RepoEntityName}: {@ItemIn}", RepoEntityName, itemIn);
@@ -164,9 +171,10 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         }
     }
 
+    /// <inheritdoc />
     public async Task RemoveAsync(Guid id, CancellationToken token = default)
     {
-        _logger.LogInformation("Requested delete of {RepoEntityName} with id {Id}", RepoEntityName, id);
+        _logger.LogInformation("Requested delete of {RepoEntityName} with id {Id}", RepoEntityName, id.ToString());
         try
         {
             await DataAccess().RemoveAsync<TRepoEntity>(id, token);
@@ -183,6 +191,7 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         }
     }
 
+    /// <inheritdoc />
     public async Task RemoveAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
     {
         _logger.LogInformation("Requested delete of {RepoEntityName} with filter {@Filter}", RepoEntityName, filter);
@@ -203,6 +212,7 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         }
     }
 
+    /// <inheritdoc />
     public async Task RemoveManyAsync(Guid[] ids, CancellationToken token = default)
     {
         _logger.LogInformation(
@@ -220,6 +230,60 @@ public sealed class BaseRepository<TRepoEntity> : IBaseRepository<TRepoEntity>
         catch (Exception ex)
         {
             _logger.LogError(ex, "There was an error during attempt to delete multiple {RepoEntityName}", RepoEntityName);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ExistsAsync(Expression<Func<TRepoEntity, bool>> filter, CancellationToken token = default)
+    {
+        _logger.LogInformation("Requested {RepoEntityName} existence check, filter: {@Filter}", RepoEntityName, filter);
+        try
+        {
+            token.ThrowIfCancellationRequested();
+
+            var itemExists = await DataAccess().ExistsAsync(filter, token);
+            _logger.LogInformation(
+                "Request of {RepoEntityName} existence check succeeded, filter: {@Filter}", RepoEntityName, filter);
+            return itemExists;
+        }
+        catch (OperationCanceledException)
+        {
+            // Throw cancelled operation, do not catch
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "There was an error during attempt to check {RepoEntityName} existence with filter {@Filter}",
+                RepoEntityName, filter);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken token = default)
+    {
+        _logger.LogInformation("Requested {RepoEntityName} existence check with id: {Id}", RepoEntityName, id.ToString());
+        try
+        {
+            token.ThrowIfCancellationRequested();
+
+            var itemExists = await DataAccess().ExistsAsync<TRepoEntity>(id, token);
+            _logger.LogInformation(
+                "Request of {RepoEntityName} existence check with id: {Id} succeeded", RepoEntityName, id.ToString());
+            return itemExists;
+        }
+        catch (OperationCanceledException)
+        {
+            // Throw cancelled operation, do not catch
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "There was an error during attempt to check {RepoEntityName} existence with id {Id}",
+                RepoEntityName, id.ToString());
+            throw;
         }
     }
 

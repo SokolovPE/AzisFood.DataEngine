@@ -194,6 +194,20 @@ public class PgDataAccess : IDataAccess
         await ids.ChunkedProcessAsync(50,
             async guids => { await RemoveAsync<TRepoEntity>(entity => guids.Contains(entity.Id), token); });
     }
+    
+    /// <inheritdoc />
+    public async Task<bool> ExistsAsync<TRepoEntity>(Expression<Func<TRepoEntity, bool>> filter,
+        CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+    {
+        return await Collection<TRepoEntity>().AnyAsync(filter, token);
+    }
+    
+    /// <inheritdoc />
+    public async Task<bool> ExistsAsync<TRepoEntity>(Guid id,
+        CancellationToken token = default) where TRepoEntity : class, IRepoEntity
+    {
+        return await Collection<TRepoEntity>().AnyAsync(item => item.Id == id, token);
+    }
 
     private DbSet<TRepoEntity> Collection<TRepoEntity>() where TRepoEntity : class, IRepoEntity
     {

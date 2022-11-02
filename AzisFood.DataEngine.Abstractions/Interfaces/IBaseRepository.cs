@@ -81,4 +81,18 @@ public interface IBaseRepository<TEntity>
     /// <param name="ids">Ids of items to delete</param>
     /// <param name="token">Token for operation cancel</param>
     Task RemoveManyAsync(Guid[] ids, CancellationToken token = default);
+
+    /// <summary>
+    ///     Check item for existence by filter
+    /// </summary>
+    /// <param name="filter">Condition for item filtering</param>
+    /// <param name="token">Token for operation cancel</param>
+    Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> filter, CancellationToken token = default);
+
+    /// <summary>
+    ///     Check item for existence by id
+    /// </summary>
+    /// <param name="id">Id of item to delete</param>
+    /// <param name="token">Token for operation cancel</param>
+    Task<bool> ExistsAsync(Guid id, CancellationToken token = default);
 }
