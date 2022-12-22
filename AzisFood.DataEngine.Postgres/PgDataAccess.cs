@@ -154,9 +154,10 @@ public class PgDataAccess : IDataAccess
     public async Task UpdateAsync<TRepoEntity>(Guid id, TRepoEntity itemIn, CancellationToken token = default)
         where TRepoEntity : class, IRepoEntity
     {
+        var ctx = Context<TRepoEntity>();
         itemIn.Id = id;
-        Context<TRepoEntity>().Entry(itemIn).State = EntityState.Modified;
-        await Context<TRepoEntity>().SaveChangesAsync(token);
+        ctx.Entry(itemIn).State = EntityState.Modified;
+        await ctx.SaveChangesAsync(token);
     }
 
     /// <inheritdoc />
