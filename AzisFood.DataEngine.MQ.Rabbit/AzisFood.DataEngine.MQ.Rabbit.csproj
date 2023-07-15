@@ -1,21 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>AzisFood.DataEngine.MQ.Rabbit</Title>
         <Authors>AzisFood</Authors>
-        <PackageVersion>1.1.0.14</PackageVersion>
+        <PackageVersion>1.2.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AzisFood.DataEngine.Abstractions\AzisFood.DataEngine.Abstractions.csproj"/>
+        <ProjectReference Include="..\AzisFood.DataEngine.Abstractions\AzisFood.DataEngine.Abstractions.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AzisFood.MQ.Rabbit" Version="1.0.1.2"/>
+        <PackageReference Include="AzisFood.MQ.Rabbit" Version="1.0.1.4" />
     </ItemGroup>
 
 </Project>
